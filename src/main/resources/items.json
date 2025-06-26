@@ -1,0 +1,255 @@
+[
+{
+    "id" : "00000001",
+    "name" : "Helmet of Arcane Acuity",
+    "type" : "Light Armor",
+    "slot" : "Head",
+    "description" : "Battle Acuity: Whenever you deal damage with a weapon attack, you gain Archane Acuity(affected entitiy has a +1 bonus to its spell Attack Rolls and spell Difficulty Class for each remaining turn) for 2 turns. Dexterity Saving Throws +1"
+},
+{
+    "id" : "00000002",
+    "name" : "Cloak of Displacement",
+    "type" : "Cloak",
+    "description" : "Displacement: At the beginning of the wearer's turn, the cloak activates, granting enemies Disadvantage on Attack Rolls that target the wearer.  This effect lasts until the wearer takes damage."
+},
+{
+    "id" : "00000003",
+    "name" : "Adamantine Scale Mail",
+    "type" : "Medium Armor",
+    "slot" : "Body",
+    "description" : "16 Armour Class. Magical Plate: All incoming damage is reduced by 1. Adamantine Backlash: When a melee attack hits you, the attacker is sent Reeling(attacker has a -1 penalty to Attack Rolls for every turn) for 2 turns. Disadvantage on Stealth Checks.  Attackers can't land Critical Hits on the wearer" 
+},
+{
+    "id" : "00000004",
+    "name" : "Dark Justiciar Gauntlets",
+    "type" : "Armor",
+    "slot" : "Hands",
+    "description" : "Umbral Attack: Your weapon attacks deal an additional 1-4 Necrotic damage.  Strength Saving Throws +1"
+},
+{
+   "id" : "00000005",
+    "name" : "Disintegrating Night Walkers",
+    "type" : "Armor",
+    "slot" : "Feet",
+    "description" : "Night Walker: Can't be Enwebbed, Entangled, or Ensared and can't slip on grease or ice. Spell: Misty Step"    
+},
+{
+      "id" : "00000006",
+    "name" : "Amulet of the Eternal Hunger",
+    "type" : "Amulet",
+    "description" : "Each time you extinguish a life, the amjulet siphons a portion of its essesnce.  After consuming 3 souls, you will restore a Warlock Spell Slot. The amulet's hunger claws at your very being, demanding sacrifice for its power.  And the start of combat, you suffer 2-20 Necrotic damage but gain an armor of shadowy energy, increasing your Armor Class by +5 until end of combat."
+},
+{
+    "id" : "00000007",
+    "name" : "Bloodstone Ring",
+    "type" : "Ring",
+    "description" : "While Pact Weapon or Hexed Weapon is active, the bloodstone ring infuses the weapon with necrotic energy, causing it to deal an additional 1-4 Necrotic damage."
+},
+{
+    "id" : "00000008",
+    "name" : "Shortbow of the Pact Keeper",
+    "type" : "Ranged Weapon",
+    "baseDamage" : "1d6",
+    "description" : "Weapon Enchantment +1.  Gain a +1 bonus to Spell Attack Rolls and Spell Save DC.  Class Action(Restore a warlock spell slot)"
+},
+{
+         "id" : "00000009",
+    "name" : "Band of the Mystic Scoundrel",
+    "type" : "Ring",
+    "description" : "After hitting a creature with a weapon attack, you can cast illusion or enchantment spells as a bonus action."
+},
+{
+    "id" : "00000010",
+    "name" : "Hood of the Archmage",
+    "type" : "Armor",
+    "slot" : "Head",
+    "description" :  "Has Advantage on Saving Throws against spells and other magical effects.  Set the wearer's Intelligence score to 20."
+},
+{
+    "id" : "00000011",
+    "name" : "Drape of the Stone Guardian",
+    "type" : "Cloak",
+    "description" :    "Armour Class +2.  While not wearing armour you are Immune to Critical Hits."
+},
+{
+   "id" : "00000012",
+    "name" : "The Graceful Cloth",
+    "type" : "Armor",
+    "slot" : "Body",
+    "description" : "10 Armour Class. Increaes your dexterity score by 2, to a maximum of 20.  Gain +1 bonus to Dexterity saving throws and increase your Jump distance by 5ft.  Gain advantage on dexterity checks and only take half damage from falling."    
+},
+{
+    "id" : "00000013",
+    "name" : "Bracers of Defence",
+    "type" : "Armor",
+    "slot" : "Hands",
+    "description" :  "Gain a +2 bonus to Armour class as long as you are not wearing armor or holding a shield"   
+},
+{
+    "id" : "000000014",
+    "name" : "Boots of the Icy Blink",
+    "type" : "Armor",
+    "slot" : "Feet",
+    "description" : "You cannot fall Prone on icy terrain. Spell (Winter's Shift, teleport to an area and deal 2-16 cold damage in a 10ft radius."
+},
+{
+    "id" : "00000015",
+    "name" : "Amulet of Misty Step",
+    "type" : "Amulet",
+    "description" : "Spell(Misty Step) per short rest"   
+},
+{
+   "id" : "000000016",
+    "name" : "Caustic Band",
+    "type" : "Ring",
+    "description" : "Your weapon attacks also deal 2 Acid Damage."
+},
+{
+   "id" : "000000017",
+    "name" : "Caustic Band",
+    "type" : "Ring",
+    "description" : "When you deal damanage with a cantrip, you gain Arcane Synergy(Weapon attacks deal additional damage equal to spell casting modifier) for 2 turns."
+},
+{
+   "id" : "00000018",
+    "name" : "Fate Weaver's Knife",
+    "type" : "Melee Weapon",
+    "weaponAttributes": "Dagger, light, finesse, thrown",
+    "baseDamage" : "1d4",
+    "description" : "Weapon Enchantment +2.  The number you need to roll a Critical Hit while attacking is reduced by 1.  When you land a Critical Hit with this weapon, the target is Paralyzed for 2 turns"
+},
+{
+    "id" : "00000019",
+    "name" : "Ne'er Misser",
+    "type" : "Range Weapon",
+    "baseDamage" : "1d6+6",
+    "description" : "Weapon Enchantment +1.  Spell (Magic Missile)"
+},
+{
+    "id" : "00000020",
+    "name" : "Helm of the Holy Crusader",
+    "type" : "Medium Armor",
+    "slot" : "Head",
+    "description" :  "When you roll a 1 or 2 on a smite spell, that die is rerolled once.  Constitution Saving Throws +1"
+},
+{
+    "id" : "00000021",
+    "name" : "Cloak of Protection",
+    "type" : "Cloak",
+    "description" : "Armour Class +1.  Saving Throw + 1"   
+},
+{
+  "id" : "00000022",
+    "name" : "Breastplate of the Radiant Defender",
+    "type" : "Heavy Armor",
+    "slot" : "Body",
+    "description" : "20 Armour Class.  When combat starts, a pillar of light surrounds you for 3 turns, inflicting 1-10 radiant damage to enemies within 7ft.  Enemies within 20ft have a -2 penalty to attack rolls.  You take 1 less Piercing damage.  Disadvantage on Stealth Checks."   
+},
+{
+    "id" : "00000023",
+    "name" : "Gauntlets of Celestial Haste",
+    "type" : "Armor",
+    "slot" : "Hands",
+    "description" :  "When casting Divine Smite, you gain Haste for 2 turns."    
+},
+{
+    "id" : "000000024",
+    "name" : "Greaves of Searing Light",
+    "type" : "Medium Armor",
+    "slot" : "Feet",
+    "description" :  "When casting Divine Smit, you deal an additional 1-4 Radiant damage."   
+},
+{
+    "id" : "00000025",
+    "name" : "Holy Symbol of Everlight",
+    "type" : "Amulet",
+    "description" :  "Dispels darkness within 50ft radius.  In this radius, you and your allies will regain the maximum hit points possible when healed and gain Advantage on Death Saving Throws. "   
+},
+{
+   "id" : "000000026",
+    "name" : "Chalice of Divine Wrath",
+    "type" : "Ring",
+    "description" : "Your weapon attacks deal additional Radiant damage equal to half your paladin level to creates affected by Radiating Orb"   
+},
+{
+    "id" : "000000027",
+    "name" : "Ring of Protection",
+    "type" : "Ring",
+    "description" : "Armour Class +1.  Saving Throw +1"
+},
+{
+  "id" : "00000028",
+    "name" : "Holy Avenger's Longsword",
+    "type" : "Melee Weapon",
+    "weaponAttributes": "Longsword, versatile",
+    "baseDamage" : "1d10",
+    "description" : "Weapon Enchantment +3. Your attacks with this weapon deal an additional 1-8 Radiant damage.  When attacking Fiends or Undead, this damage is increased to 2-16 Radiant damage."    
+},
+{
+   "id" : "00000029",
+    "name" : "Hunting Shortbow",
+    "type" : "Range Weapon",
+    "baseDamage" : "1d6",
+    "description" :  "Weapon Enchantment +1. You have Advantage against Monstrosity type enemies."   
+},
+{
+    "id" : "00000030",
+    "name" : "Symbol of Hope",
+    "type" : "Medium Armor",
+    "slot" : "Head",
+    "description" :  "Your healing spells of Level1 and higher heal all creatures in a 10ft radius for 1-4 hit points per spell slot"    
+},
+{
+     "id" : "00000031",
+    "name" : "Cape of the Devout",
+    "type" : "Cloak",
+    "description" : "Weapon damage is increased by 1-4 Radiant damage"   
+},
+{
+ "id" : "00000032",
+    "name" : "Luminous Armour",
+    "type" : "Medium Armor",
+    "slot" : "Body",
+    "description" : "15 Armour Class. When the wearer deals Radiant damage, they cause a Radiant Shockwave(Inflict Radiating Orb in a 10ft radius)"     
+},
+{
+    "id" : "00000033",
+    "name" : "Hellrider's Pride",
+    "type" : "Armor",
+    "slot" : "Hands",
+    "description" :  "When you heal another creature, it gains resistance against Bludgeoning, Piercing, and Slashing damage dealt by weapon attacks.  Strength Saving Throws +1"   
+},
+{
+    "id" : "000000034",
+    "name" : "Boots of the Blessed Step",
+    "type" : "Medium Armor",
+    "slot" : "Feet",
+    "description" :  "When you heal yourself or an ally, the target gains an additional 10% of their Movement Speed for 3 turns and allies within 7ft gain the same effect.  Advantage on Acrobatics Checks"   
+},
+{
+     "id" : "00000035",
+    "name" : "Psychic Spark",
+    "type" : "Amulet",
+    "description" : "Shoot an additional dart whenever you cast Magic Missile.  Spell(Magic Missile)"   
+},
+{
+       "id" : "000000036",
+    "name" : "Coruscation Ring",
+    "type" : "Ring",
+    "description" : "Wh the wearer deals spell damage while illuminated by a light source, they also inflict Radiating Orb upon the target for 2 turns."
+},
+{
+    "id" : "000000037",
+    "name" : "Callous Glow Ring",
+    "type" : "Ring",
+    "description" :  "The wearer deals an additional 2 points of damage against creatures that are illuminated"  
+},
+{
+  "id" : "00000038",
+    "name" : "The BLood of Lathander",
+    "type" : "Melee Weapon",
+    "weaponAttributes": "Mace",
+    "baseDamage" : "1d6",
+    "description" : "Weapon Enchantment +3. Once per Long Rest, when your hit points are reduced to 0, you regain 2-12 hit points.  Allies within 30ft also regain 1-6 hit points. Spell(Sunbeam)"    
+}
+]
