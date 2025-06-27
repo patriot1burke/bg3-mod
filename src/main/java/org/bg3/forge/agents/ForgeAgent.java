@@ -1,4 +1,6 @@
-package org.bg3.forge;
+package org.bg3.forge.agents;
+
+import org.bg3.forge.Filter;
 
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;

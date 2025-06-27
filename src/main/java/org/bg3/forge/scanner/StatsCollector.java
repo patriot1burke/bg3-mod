@@ -36,6 +36,8 @@ public class StatsCollector {
 
     public static class Library extends HashMap<String, Map<String, Stat>> {
 
+        
+
         public Set<String> collectAttributeValues(String type, String attribute) {
             return get(type).values().stream()
                 .map(entry -> entry.data.get(attribute))

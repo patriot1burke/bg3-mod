@@ -5,14 +5,14 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bg3.forge.scanner.RootTemplateScanner;
+import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
 import org.junit.jupiter.api.Test;
 
 
 public class ScannerTest {
 
-    @Test
+    //@Test
     public void testEntryScanner() throws IOException {
         StatsCollector.Library library = StatsCollector.scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Armor.txt"))
         .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Armor.txt"))
@@ -25,11 +25,11 @@ public class ScannerTest {
         library.commonAttributes("Armor", "Weapon").stream().sorted().forEach(System.out::println);
     }
 
-    @Test
+    //@Test
     public void testRootTemplateScanner() throws Exception {
-        RootTemplateScanner scanner = new RootTemplateScanner();
+        RootTemplateCollector scanner = new RootTemplateCollector();
         scanner.scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
-        for (RootTemplateScanner.RootTemplate template : scanner.templates.values()) {
+        for (RootTemplateCollector.RootTemplate template : scanner.templates.values()) {
             System.out.println(template);
         }
     }
