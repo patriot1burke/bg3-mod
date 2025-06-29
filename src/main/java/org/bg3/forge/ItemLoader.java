@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.nio.file.Files;
@@ -22,9 +23,14 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 
 @ApplicationScoped
 public class ItemLoader {
+  @Inject
+  EmbeddingStore embeddingStore;
+  
+  @Inject
+  EmbeddingModel embeddingModel;
 
-  public void load(@Observes StartupEvent event, EmbeddingStore embeddingStore, EmbeddingModel embeddingModel) throws Exception {
-
+//  public void load(@Observes StartupEvent event) throws Exception {
+  public void load() throws Exception {
 
     Log.info("Loading items...");
 

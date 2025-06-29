@@ -4,9 +4,12 @@ import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataFinderAgent;
 import org.bg3.forge.model.EquipmentFilter;
 import org.bg3.forge.model.EquipmentFilters;
+import org.bg3.forge.toolbox.Bg3DB;
 import org.hibernate.Session;
 
 import org.jboss.logging.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -18,7 +21,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @Path("/assistant")
 public class AssistantResource {
@@ -34,17 +39,27 @@ public class AssistantResource {
 	@Inject
 	MetadataFinderAgent metadataFinderAgent;
 
+	@Inject
+	Bg3DB bg3DB;
+
 	/**
 	 * Executes a natural language query and returns data in JSON format.
 	 */
 	@GET
 	@Path("/json")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response queryToJson(@QueryParam("query") String query) {
+	public Response queryToJson(@QueryParam("query") String query) throws Exception {
+		/* 
 		String json = EquipmentFilters.toJson(metadataFinderAgent.answer(query));
 		LOG.info("Equipment filters: " + json);
 		return Response.ok(json).build();
-		
+		*/
+
+		List<String> boosts = bg3DB.scanBoosts();
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json = objectMapper.writeValueAsString(boosts);
+		//LOG.info("Boosts: " + json);
+		return Response.ok(json).build();
 	}
 
 	/**

@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.quarkus.logging.Log;
+
 public class StatsCollector {
     private static Pattern dataPattern = Pattern.compile("^data\\s+\"([^\"]+)\"\\s+\"([^\"]+)\"$");
     private static Pattern newEntryPattern = Pattern.compile("^new entry\\s+\"([^\"]+)\"$");
@@ -95,6 +97,10 @@ public class StatsCollector {
         }
 
         public Library scan(Path path) throws IOException {
+            if (!Files.exists(path)) {
+                Log.infof("Cannot scan statsfile %s, it does not exist", path);
+                return this;
+            }
             AtomicReference<Stat> currentEntry = new AtomicReference<>();
             try (Stream<String> lines = Files.lines(path)) {
                 lines.forEach(line -> {

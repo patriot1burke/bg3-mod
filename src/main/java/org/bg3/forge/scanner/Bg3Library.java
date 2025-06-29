@@ -1,9 +1,9 @@
 package org.bg3.forge.scanner;
 
 public class Bg3Library {
-    LocalizationCollector localizationCollector = new LocalizationCollector();
-    StatsCollector.Library statsCollector = new StatsCollector.Library();
-    RootTemplateCollector rootTemplateCollector = new RootTemplateCollector();
+    public LocalizationCollector localizationCollector = new LocalizationCollector();
+    public StatsCollector.Library statsCollector = new StatsCollector.Library();
+    public RootTemplateCollector rootTemplateCollector = new RootTemplateCollector();
 
     public LocalizationCollector getLocalizationCollector() {
         return localizationCollector;
