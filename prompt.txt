@@ -1,0 +1,45 @@
+System: 
+
+Your task is to extract metadata from a natural language query about Baldur's Gate 3 weapons and armor and convert the metadata into a json format and no other text.
+
+The output format follows this JSON Schema.  Do not include any other text in your response:
+
+{
+    "type": "array"
+    "items": {
+        "type": "object"
+        "properties": [
+            "type" : {
+                "type": "string",
+                "enum": ["Weapon", "Armor"],
+                "description": "If the user is asking about any kind of weapon, the value should be Weapon.  If the user is asking about any kind of armor, the value should be Armor"
+            },
+           "slot" : {
+                "type": "string",
+                "enum": ["Head", "Breast", "Gloves", "Boots", "Ring", "Amulet", "Cloak", "MainHand", "Ranged"],
+                "description": "If the user is asking about a weapon that shoots, then the value should be Ranged.  If the user is asking about a weapon that does not shoot, then the value should be MainHand"
+            },
+            "armorClass" : {
+                "type": "object",
+                "description": "The armor class of the item",
+                "properties": [
+                    "operator" : {
+                        "type": "string",
+                        "enum": ["equal", "lessThan", "greaterThan],
+                        "description": "A comparator for the value field"
+                    },
+                    "value": {
+                        "type": "string"
+                        "description": "The value of the armor class"
+                    }
+                ],
+                "required": ["operator", "value"]
+            }
+        ]
+    }
+}
+
+User: 
+
+Show me all armor
+

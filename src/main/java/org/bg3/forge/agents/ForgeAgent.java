@@ -8,7 +8,7 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-@RegisterAiService
+@RegisterAiService()
 public interface ForgeAgent {
 
     @SystemMessage("""

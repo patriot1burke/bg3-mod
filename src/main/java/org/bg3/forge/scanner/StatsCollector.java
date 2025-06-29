@@ -21,22 +21,41 @@ public class StatsCollector {
     private static Pattern dataPattern = Pattern.compile("^data\\s+\"([^\"]+)\"\\s+\"([^\"]+)\"$");
     private static Pattern newEntryPattern = Pattern.compile("^new entry\\s+\"([^\"]+)\"$");
     private static Pattern typePattern = Pattern.compile("^type\\s+\"([^\"]+)\"$");
+    private static Pattern usingPattern = Pattern.compile("^using\\s+\"([^\"]+)\"$");
 
     public static class Stat {
         public String name;
         public String type;
+        public String using;
+        public Library library;
         public Map<String, String> data;
 
-        public Stat(String name, String type, Map<String, String> data) {
+        public Stat(String name, String type, Library library, Map<String, String> data) {
             this.name = name;
             this.type = type;
+            this.library = library;
             this.data = data;
         }
+        public String getField(String field) {
+            String val = data.get(field);
+            if (val == null) {
+                Stat parent = library.getByName(using);
+                if (parent != null) {
+                    val = parent.getField(field);
+                }
+            }
+            return val;
+        }
+        
+        
     }
 
     public static class Library extends HashMap<String, Map<String, Stat>> {
+        private Map<String, Stat> byName = new HashMap<>();
 
-        
+        public Stat getByName(String name) {
+            return byName.get(name);
+        }
 
         public Set<String> collectAttributeValues(String type, String attribute) {
             return get(type).values().stream()
@@ -79,10 +98,17 @@ public class StatsCollector {
             AtomicReference<Stat> currentEntry = new AtomicReference<>();
             try (Stream<String> lines = Files.lines(path)) {
                 lines.forEach(line -> {
+                    Matcher matcher = dataPattern.matcher(line);
+                    if (matcher.matches()) {
+                        String key = matcher.group(1);
+                        String value = matcher.group(2);
+                        currentEntry.get().data.put(key, value);
+                        return;
+                    }
                     Matcher newEntryMatcher = newEntryPattern.matcher(line);
                     if (newEntryMatcher.matches()) {
                         String name = newEntryMatcher.group(1);
-                        currentEntry.set(new Stat(name, null, new HashMap<>()));
+                        currentEntry.set(new Stat(name, null, this, new HashMap<>()));
                         return;
                     }
                     Matcher typeMatcher = typePattern.matcher(line);
@@ -91,13 +117,13 @@ public class StatsCollector {
                         currentEntry.get().type = type;
                         Map<String, Stat> typeEntries = computeIfAbsent(type, k -> new HashMap<>());
                         typeEntries.put(currentEntry.get().name, currentEntry.get());
+                        byName.put(currentEntry.get().name, currentEntry.get());
                         return;
                     }
-                    Matcher matcher = dataPattern.matcher(line);
-                    if (matcher.matches()) {
-                        String key = matcher.group(1);
-                        String value = matcher.group(2);
-                        currentEntry.get().data.put(key, value);
+                    Matcher usingMatcher = usingPattern.matcher(line);
+                    if (usingMatcher.matches()) {
+                        String using = usingMatcher.group(1);
+                        currentEntry.get().using = using;
                         return;
                     }
                 });

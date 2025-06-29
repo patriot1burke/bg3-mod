@@ -2,7 +2,8 @@ package org.bg3.forge;
 
 import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataFinderAgent;
-import org.bg3.forge.model.MetadataFilter;
+import org.bg3.forge.model.EquipmentFilter;
+import org.bg3.forge.model.EquipmentFilters;
 import org.hibernate.Session;
 
 import org.jboss.logging.Logger;
@@ -26,6 +27,7 @@ public class AssistantResource {
 	@Inject
     ForgeAgent forgeAgent;
 
+
 	@Inject
 	ItemService itemService;
 
@@ -39,10 +41,10 @@ public class AssistantResource {
 	@Path("/json")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response queryToJson(@QueryParam("query") String query) {
-		String json = metadataFinderAgent.answer(query);
-		List<MetadataFilter> metadataFilters = MetadataFilter.fromJson(json);
-		json = MetadataFilter.toJson(metadataFilters);
+		String json = EquipmentFilters.toJson(metadataFinderAgent.answer(query));
+		LOG.info("Equipment filters: " + json);
 		return Response.ok(json).build();
+		
 	}
 
 	/**
@@ -53,6 +55,7 @@ public class AssistantResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response naturalLanguage(@QueryParam("query") String query) {
 		List<Item> items = itemService.query(query);
+
         String response = "";
         if (items.isEmpty()) {
             response = "I couldn't find any items that match your query.";
@@ -60,6 +63,7 @@ public class AssistantResource {
             List<ForgeItem> forgeItems = items.stream().map(ForgeItem::toForgeItem).toList();
             String json = ForgeItem.toJson(forgeItems);
             response = forgeAgent.answer(query, json);
+
         }
 		return Response.ok(response).build();
 	}
