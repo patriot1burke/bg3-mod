@@ -24,7 +24,7 @@ public record EquipmentFilter(
     EquipmentSlot slot,
 
     @JsonProperty(required = false)
-    ArmorClass armorClass) {
+    ArmorClassFilter armorClass) {
     public static List<EquipmentFilter> fromJson(String json) {
         try {
             return new ObjectMapper().readValue(json, new TypeReference<List<EquipmentFilter>>() {});

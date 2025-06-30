@@ -1,5 +1,8 @@
 package org.bg3.forge.scanner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Bg3Library {
     public LocalizationCollector localizationCollector = new LocalizationCollector();
     public StatsCollector.Library statsCollector = new StatsCollector.Library();
@@ -14,12 +17,4 @@ public class Bg3Library {
     public RootTemplateCollector getRootTemplateCollector() {
         return rootTemplateCollector;
     }
-
-    public static class Equipment {
-        public String name;
-        public String description;
-        public String mapKey;
-        public String displayName;
-    }
-
 }

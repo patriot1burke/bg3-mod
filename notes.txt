@@ -1,3 +1,10 @@
+Weapon Boosts Attributes:
+* Boosts - seems to be only UnlockSpell only.  I think this is "if proficient in" in UI
+* DefaultBoosts - seems to be only WeaponProperty() and WeaponEnchantment()
+* PassivesOnEquip - Unique stuff to weapon
+* 
+
+
 PassiveData
 
 Conditions - things that can trigger the PassiveData

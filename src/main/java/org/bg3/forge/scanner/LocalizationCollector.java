@@ -12,6 +12,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.bg3.forge.model.Handle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,14 +45,30 @@ public class LocalizationCollector {
         return elements;
     }
 
-    public Map<String, String> localization = new HashMap<>();
+    public Map<String, Map<Integer, String>> localization = new HashMap<>();
+
+    public String getLocalization(Handle handle) {
+        Map<Integer, String> versions = localization.get(handle.id());
+        if (versions == null) {
+            return null;
+        }
+        if (handle.version().equals("*")) {
+            int highestVersion = versions.keySet().stream().max(Integer::compareTo).orElse(0);
+            return versions.get(highestVersion);
+        } else {
+            return versions.get(Integer.parseInt(handle.version()));
+        }
+    }
+
 
     public void scan(Path xmlPath) throws Exception {
         List<Element> localizationElements = getLocalizationAsElements(xmlPath);
         for (Element localizationElement : localizationElements) {
             String contentuid = localizationElement.getAttribute("contentuid");
+            int version = Integer.parseInt(localizationElement.getAttribute("version"));
             String content = localizationElement.getTextContent();
-            localization.put(contentuid, content);
+            localization.computeIfAbsent(contentuid, k -> new HashMap<>()).put(version, content);
+
         }
     }
     

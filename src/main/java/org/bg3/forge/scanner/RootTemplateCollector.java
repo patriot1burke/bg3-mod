@@ -59,17 +59,11 @@ public class RootTemplateCollector {
     }
 
     public static class RootTemplate {
-        public String Name;
+        public String Stats;
         public String MapKey;
+        public String DisplayName;
+        public String Description;
         public Map<String, String> Attributes = new HashMap<>();
-
-        public String toString() {
-            return "RootTemplate{" +
-                "Name='" + Name + '\'' +
-                ", MapKey='" + MapKey + '\'' +
-                ", Attributes=" + Attributes +
-                '}';
-        }
         
     }
 
@@ -83,7 +77,7 @@ public class RootTemplateCollector {
             for (Element attributeElement : attributeElements) {
                 template.Attributes.put(attributeElement.getAttribute("id"), attributeElement.getAttribute("value"));
             }
-            template.Name = template.Attributes.get("Name");
+            template.Stats = template.Attributes.get("Stats");
             template.MapKey = template.Attributes.get("MapKey");
             templates.put(template.MapKey, template);
         }
