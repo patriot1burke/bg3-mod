@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataFinderAgent;
-import org.bg3.forge.toolbox.Bg3DB;
+import org.bg3.forge.toolbox.LibraryService;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +34,7 @@ public class AssistantResource {
 	MetadataFinderAgent metadataFinderAgent;
 
 	@Inject
-	Bg3DB bg3DB;
+	LibraryService bg3DB;
 
 	/**
 	 * Executes a natural language query and returns data in JSON format.

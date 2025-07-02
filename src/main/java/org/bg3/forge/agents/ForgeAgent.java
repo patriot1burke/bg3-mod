@@ -1,6 +1,6 @@
 package org.bg3.forge.agents;
 
-import org.bg3.forge.toolbox.Bg3DB;
+import org.bg3.forge.toolbox.LibraryService;
 
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;

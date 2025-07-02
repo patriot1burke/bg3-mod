@@ -49,3 +49,5 @@ damage type
 
 DescriptionParams
 
+MAG_HomingWeapon_Passive is a passive where weapon will come back to you.
+

@@ -9,6 +9,7 @@ public record Equipment(
     EquipmentSlot slot,
     String name,
     String description,
+    String boostDescription,
     RootTemplateCollector.RootTemplate rootTemplate,
     StatsCollector.Stat stat
 ) {

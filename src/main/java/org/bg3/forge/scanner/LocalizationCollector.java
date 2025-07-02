@@ -47,6 +47,9 @@ public class LocalizationCollector {
 
     public Map<String, Map<Integer, String>> localization = new HashMap<>();
 
+    public String getLocalization(String handle) {
+        return getLocalization(Handle.fromString(handle));
+    }
     public String getLocalization(Handle handle) {
         Map<Integer, String> versions = localization.get(handle.id());
         if (versions == null) {
