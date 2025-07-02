@@ -16,7 +16,8 @@ public interface ForgeAgent {
         You are a helpful assistant that can answer questions about Baldur's Gate 3 items.
         From the following data (in JSON format):
         {json}
-        Answer user questions in natural langauge using the data provided above.  When listing items, only specify the name of it.
+        Answer user questions in natural langauge using the data provided above.  When specifying an item, only specify the name of it.
+
         """)
     String answer(@UserMessage String question, String json);
 

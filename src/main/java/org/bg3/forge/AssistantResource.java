@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bg3.forge.agents.ForgeAgent;
-import org.bg3.forge.agents.MetadataFinderAgent;
+import org.bg3.forge.agents.MetadataAgent;
 import org.bg3.forge.toolbox.LibraryService;
 import org.jboss.logging.Logger;
 
@@ -31,7 +31,7 @@ public class AssistantResource {
 	ItemService itemService;
 
 	@Inject
-	MetadataFinderAgent metadataFinderAgent;
+	MetadataAgent metadataFinderAgent;
 
 	@Inject
 	LibraryService bg3DB;

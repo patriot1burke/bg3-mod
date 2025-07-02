@@ -37,42 +37,42 @@ public class LibraryService {
         scanFiles();
     }
 
-
     private void scanFiles() {
-        if (initialized) return;
+        if (initialized)
+            return;
         initialized = true;
         try {
             Log.info("Starting Bg3DB");
 
             library.getStatsCollector()
-            .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Armor.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Armor.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Armor.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Weapon.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Weapon.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Weapon.txt"))
-            
-            .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Passive.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Passive.txt"))
-            .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Passive.txt"))
-            
-                    ;
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Armor.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Armor.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Armor.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Weapon.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Weapon.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Weapon.txt"))
 
-                    library.getRootTemplateCollector().scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
-                    library.getRootTemplateCollector().scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"));
-                    library.getLocalizationCollector().scan(Path.of("/mnt/c/Users/patri/mods/bg3-localization/Localization/English/english.xml"));
-            
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Passive.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Passive.txt"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Passive.txt"))
+
+            ;
+
+            library.getRootTemplateCollector()
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
+            library.getRootTemplateCollector()
+                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"));
+            library.getLocalizationCollector()
+                    .scan(Path.of("/mnt/c/Users/patri/mods/bg3-localization/Localization/English/english.xml"));
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-
     public Bg3Library library() {
         return library;
     }
-
-
 
     public List<String> getStatAttributeValues(String attributeName) {
         scanFiles();
@@ -121,8 +121,10 @@ public class LibraryService {
                 String parameters = null;
                 for (String param : paramTokens) {
                     param = param.trim();
-                    if (parameters != null) parameters += ",";
-                    if (parameters == null) parameters = "";
+                    if (parameters != null)
+                        parameters += ",";
+                    if (parameters == null)
+                        parameters = "";
                     if (param.matches("^-?\\d+$")) {
                         parameters += "number";
                     } else if (param.matches("^\\d+d\\d+$")) {
