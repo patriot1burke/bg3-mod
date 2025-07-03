@@ -72,6 +72,7 @@ public class RootTemplateCollector {
 
     public void scan(Path xmlPath) throws Exception {
         List<Element> gameObjects = getGameObjectsAsElements(xmlPath);
+        int sum = 0;
         for (Element gameObject : gameObjects) {
             RootTemplate template = new RootTemplate();
             List<Element> attributeElements = getAttributeElements(gameObject);
@@ -88,8 +89,9 @@ public class RootTemplateCollector {
                 }
             }
             templates.put(template.MapKey, template);
+            sum++;
         }
-        Log.info("Scanned " + templates.size() + " root templates");
+        Log.info("Scanned " + sum + " root templates");
     }
 
 

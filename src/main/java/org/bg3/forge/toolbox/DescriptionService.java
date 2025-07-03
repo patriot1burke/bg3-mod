@@ -41,6 +41,14 @@ public class DescriptionService {
         return description;
     }
 
+    public String statDisplayName(StatsCollector.Stat stat) {
+        String handle = stat.getField("DisplayName");
+        if (handle == null) {
+            return null;
+        }
+        return bg3DB.library().getLocalizationCollector().getLocalization(handle);
+    }
+
     public DescriptionService passive(String name, Consumer<String> writer) {
         StatsCollector.Stat stat = bg3DB.library().statsCollector.getByName(name);
         if (stat == null) {

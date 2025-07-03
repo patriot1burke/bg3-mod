@@ -6,12 +6,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.bg3.forge.scanner.StatsCollector.Stat;
+
 import io.quarkus.logging.Log;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class MacroDescriptionService {
+    @Inject
+    LibraryService bg3DB;
+
+    @Inject
+    DescriptionService descriptionService;
+
+    @PostConstruct
+    public void init() {
+        initTransformers();
+    }
+
     public String description(String macroString) {
         Macro macro = fromString(macroString);
         if (macro != null) return macro.transformer.transform(macro);
@@ -47,8 +61,13 @@ public class MacroDescriptionService {
                 depth++;
             } else if (params.charAt(index) == ')') {
                 depth--;
-            } else if (depth == 0 && (params.charAt(index) == ',' || index + 1 == params.length())) {
-                argList.add(params.substring(paramIndex, index).trim());
+            } else if (depth == 0) {
+                if (params.charAt(index) == ',') {
+                    argList.add(params.substring(paramIndex, index).trim());
+                    paramIndex = index + 1;
+                } else if (index + 1 == params.length()) {
+                    argList.add(params.substring(paramIndex).trim());
+                }
             }
         }
         macro.args = argList.toArray(new String[argList.size()]);
@@ -65,9 +84,24 @@ public class MacroDescriptionService {
     public interface DescriptionTransformer {
         String transform(Macro macro);
     }
-    static Map<String, DescriptionTransformer> transformers = new HashMap<>();
 
-    static {
+    static Map<String, String> dieRollTargets = Map.of(
+        "Attack", "Attack",
+        "DeathSavingThrow", "Death Saving Throws",
+        "MeleeSpellAttack", "Melee Spell Attack",
+        "MeleeUnarmedAttack", "Unarmed Attack",
+        "MeleeWeaponAttack", "Weapon Attack",
+        "RangedOffHandWeaponAttack", "Ranged Offhand Weapon Attack",
+        "RangedSpellAttack", "Spell Attack",
+        "RangedUnarmedAttack", "Ranged Unarmed Attack",
+        "RangedWeaponAttack", "Ranged Weapon Attack"
+    );
+
+
+    Map<String, DescriptionTransformer> transformers = new HashMap<>();
+
+
+    void initTransformers() {
         transformers.put("AC", (macro) -> {
             return "Armor Class +" + macro.args[0];
         });
@@ -266,13 +300,51 @@ public class MacroDescriptionService {
             return "You are " + macro.args[1] + " to " + macro.args[0];
         });
         transformers.put("RollBonus", (macro) -> {
-            return "Add a bonus of " + macro.args[1] + " to " + macro.args[0];
+            String description = "";
+            if (macro.args.length == 3) {
+                description += macro.args[2] + " ";
+            }
+            if (dieRollTargets.containsKey(macro.args[0])) {
+                description += dieRollTargets.get(macro.args[0]) + " ";
+            } else if (macro.args[0].equals("SkillCheck")) {
+                if (macro.args.length == 2) {
+                    description += "Skill Checks ";
+                } else {
+                    description += "Checks ";
+                }
+            } else if (macro.args[0].equals("RawAbility")) {
+                if (macro.args.length == 2) {
+                    description += "All Ability Checks ";
+                } else {
+                    description += "Checks ";
+                }
+            } else if (macro.args[0].equals("SavingThrow")) {
+                if (macro.args.length == 2) {
+                    description +="All ";
+                }
+                description += "Saving Throws ";
+            } else {
+                description += macro.args[0];
+            }
+            description += "+" + macro.args[1];
+            return description;
         });
         transformers.put("Skill", (macro) -> {
-            return "Add a +" + macro.args[1] + " to " + macro.args[0];
+            return macro.args[0] + " +" + macro.args[1];
         });
          transformers.put("SpellSaveDC", (macro) -> {
-            return "Add a +" + macro.args[0] + " to your Spell Save DC";
+            return "Spell Save DC +" + macro.args[0];
+        });
+        transformers.put("UnlockSpell", (macro) -> {
+            Stat stat = bg3DB.library().statsCollector.getByName(macro.args[0]);
+            if (stat == null) {
+                return "UnlockSpell (no stat)" + macro.args[0];
+            }
+            String displayName = descriptionService.statDisplayName(stat);
+            if (displayName == null) {
+                return "UnlockSpell (no display name)" + macro.args[0];
+            }
+            return "Spell: " + displayName;
         });
         transformers.put("WeaponDamage", (macro) -> {
             String description = "Additional " + macro.args[0];

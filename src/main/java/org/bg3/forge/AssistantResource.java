@@ -109,6 +109,7 @@ public class AssistantResource {
             response = "I couldn't find any items that match your query.";
         } else {
            response = EquipmentModel.toJson(items);
+		   response = forgeAgent.list(query, response);
 
         }
 		return Response.ok(response).build();

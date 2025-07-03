@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -111,7 +112,19 @@ public class StatsCollector {
                 Log.infof("Cannot scan statsfile %s, it does not exist", path);
                 return this;
             }
+            if (Files.isDirectory(path)) {
+                for (Path file : Files.list(path).toList()) {
+                    scanFile(file);
+                }
+            } else {
+                scanFile(path);
+            }
+            return this;
+        }
+
+        private Library scanFile(Path path) throws IOException {
             AtomicReference<Stat> currentEntry = new AtomicReference<>();
+            AtomicInteger sum = new AtomicInteger(0);
             try (Stream<String> lines = Files.lines(path)) {
                 lines.forEach(line -> {
                     Matcher matcher = dataPattern.matcher(line);
@@ -134,6 +147,7 @@ public class StatsCollector {
                         Map<String, Stat> typeEntries = computeIfAbsent(type, k -> new HashMap<>());
                         typeEntries.put(currentEntry.get().name, currentEntry.get());
                         byName.put(currentEntry.get().name, currentEntry.get());
+                        sum.incrementAndGet();
                         return;
                     }
                     Matcher usingMatcher = usingPattern.matcher(line);
@@ -143,6 +157,7 @@ public class StatsCollector {
                         return;
                     }
                 });
+                Log.info("Scanned " + sum.get() + " stats from " + path);
                 return this;
             }
         }

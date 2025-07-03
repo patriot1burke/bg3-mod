@@ -69,14 +69,15 @@ public class LocalizationCollector {
 
     public void scan(Path xmlPath) throws Exception {
         List<Element> localizationElements = getLocalizationAsElements(xmlPath);
+        int sum = 0;
         for (Element localizationElement : localizationElements) {
             String contentuid = localizationElement.getAttribute("contentuid");
             int version = Integer.parseInt(localizationElement.getAttribute("version"));
             String content = localizationElement.getTextContent();
             localization.computeIfAbsent(contentuid, k -> new HashMap<>()).put(version, content);
-
+            sum++;
         }
-        Log.info("Scanned " + localization.size() + " localizations");
+        Log.info("Scanned " + sum + " localizations");
     }
     
 }

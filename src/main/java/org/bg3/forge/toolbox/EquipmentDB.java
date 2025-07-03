@@ -22,6 +22,7 @@ import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
+import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.filter.Filter;
@@ -31,6 +32,7 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class EquipmentDB {
@@ -53,7 +55,7 @@ public class EquipmentDB {
 
     public void start(@Observes StartupEvent event) throws Exception {
         buildEquipment();
-        //load();
+        load();
     }
 
     private void buildEquipment() {
@@ -74,10 +76,6 @@ public class EquipmentDB {
                 Log.debug("No root template for " + id);
                 continue;
             }
-            if (rootTemplate.DisplayName == null) {
-                Log.debug("No display name for " + id);
-                continue;
-            }
             String displayName = rootTemplate.DisplayName;
             if (displayName == null || displayName.isEmpty()) {
                 Log.debug("No display name for " + id);
@@ -85,7 +83,7 @@ public class EquipmentDB {
             }
             String name = libraryService.library().getLocalizationCollector().getLocalization(displayName);
             if (name == null) {
-                Log.info("No name for " + id);
+                Log.debug("No name for " + id);
                 continue;
             }
             String description = "";
@@ -93,14 +91,26 @@ public class EquipmentDB {
                 description = libraryService.library().getLocalizationCollector()
                         .getLocalization(rootTemplate.Description);
             } else {
-                Log.info("No description for " + id);
+                Log.debug("No description for " + id);
             }
             StringBuilder boostDescription = new StringBuilder();
-            descriptionService.armor(armor, (desc) -> boostDescription.append("<p>").append(desc).append("</p>"));
-            Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boostDescription.toString(),
+            try {
+                descriptionService.armor(armor, (desc) -> boostDescription.append("<p>").append(desc).append("</p>"));
+            } catch (Exception e) {
+                throw new RuntimeException("Error processing boosts for " + id, e);
+            }
+            String boost = boostDescription.toString();
+            Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost,
                     rootTemplate, armor);
-            Log.info("Adding " + id + " " + equipment.boostDescription());
-            //equipmentDB.put(id, equipment);
+            equipmentDB.put(id, equipment);
+            /*
+             * if (boost.isEmpty()) {
+             * continue;
+             * } else {
+             * Log.info("Adding " + id + " " + equipment.boostDescription());
+             * //equipmentDB.put(id, equipment);
+             * }
+             */
 
         }
         Log.info("Added " + equipmentDB.size() + " to equipment database");
@@ -118,6 +128,8 @@ public class EquipmentDB {
                 .embeddingStore(embeddingStore)
                 .build();
 
+        int MAX_INGEST = 20;
+
         List<Document> docs = new ArrayList<>();
         for (Equipment item : equipmentDB.values()) {
             Metadata metadata = Metadata.from(Map.of("id", item.id(), "type", item.type().name(), "slot",
@@ -127,27 +139,28 @@ public class EquipmentDB {
                     "Slot: " + item.slot() + "\n" +
                     "Rarity: " + item.rarity() + "\n" +
                     "Boosts: " + item.boostDescription();
+            //Log.info("\nid: " + item.id() + "\n" + content);
             Document document = Document.from(content, metadata);
             docs.add(document);
-        }
-
-        Log.info("Ingesting items...");
+         }
         ingester.ingest(docs);
-        Log.info("Application initalized!");
+
+        Log.info("Ingested " + equipmentDB.size() + " items");
     }
 
+    @Transactional
     public List<Equipment> query(String queryString) {
         Log.infof("Querying for: %s", queryString);
         EquipmentFilters filters = metadataAgent.answer(queryString);
         FilterExpression filter = new FilterExpression();
-        if (filters != null && !filters.filters().isEmpty()) {
+        if (filters != null && filters.filters() != null && !filters.filters().isEmpty()) {
             for (EquipmentFilter eq : filters.filters()) {
                 FilterExpression x = new FilterExpression();
                 if (eq.type() != null) {
                     Filter typeFilter = new MetadataFilterBuilder("type").isEqualTo(eq.type().name());
                     x.and(typeFilter);
                 }
-                if (eq.slot() != null) {
+                if (eq.slot() != null && eq.slot() != EquipmentSlot.Unknown) {
                     Filter slotFilter = new MetadataFilterBuilder("slot").isEqualTo(eq.slot().name());
                     x.and(slotFilter);
                 }
@@ -158,13 +171,15 @@ public class EquipmentDB {
         Embedding embedding = embeddingModel.embed(queryString).content();
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
                 .queryEmbedding(embedding)
-                .filter(filter.filter())
-                .minScore(0.75)
-                .maxResults(5)
+                //.filter(filter.filter())
+                .minScore(0.5)
+                .maxResults(10)
                 .build();
 
-
-        return embeddingStore.search(request).matches().stream().map(m -> {
+        EmbeddingSearchResult<TextSegment> search = embeddingStore.search(request);
+        Log.info("Search results: " + search.matches().size());
+        return search.matches().stream().map(m -> {
+            Log.info("Score: " + m.score());
             String id = m.embedded().metadata().getString("id");
             return equipmentDB.get(id);
         }).toList();

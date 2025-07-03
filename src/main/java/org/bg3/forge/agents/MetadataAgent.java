@@ -19,5 +19,4 @@ public interface MetadataAgent {
             Your task is to extract metadata from a natural language query about Baldur's Gate 3 weapons and armor.
                     """)
     EquipmentFilters answer(@UserMessage String query);
-
 }

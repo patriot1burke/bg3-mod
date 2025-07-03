@@ -7,10 +7,14 @@ import java.util.Set;
 
 import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
+import org.bg3.forge.toolbox.MacroDescriptionService;
+import org.bg3.forge.toolbox.MacroDescriptionService.Macro;
 import org.junit.jupiter.api.Test;
 
 
 public class ScannerTest {
+
+
 
     //@Test
     public void testEntryScanner() throws IOException {

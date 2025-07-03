@@ -16,10 +16,22 @@ public interface ForgeAgent {
         You are a helpful assistant that can answer questions about Baldur's Gate 3 items.
         From the following data (in JSON format):
         {json}
-        Answer user questions in natural langauge using the data provided above.  When specifying an item, only specify the name of it.
+        Answer user questions in natural langauge using the data provided above.
+        List an items found in the data.
 
         """)
     String answer(@UserMessage String question, String json);
+
+    @SystemMessage("""
+        Your task answer questions about JSON data obtained from a Baldur's Gate 3 item database.
+
+        Input:
+        {json}
+
+        Output:
+        Any item name mentioned should be wrapped in an HTML anchor with an anchor attribute called "data-tooltip".  The value of "data-tooltip" should be a json string that sets a "title" value to the name of the item and sets the "content" value to be the boostDescription of the item and sets the "footer" value to the the description of the item.
+        """)
+    String list(@UserMessage String question, String json);
 
     @SystemMessage("""
         Analyze the user's request to return a command to execute.
