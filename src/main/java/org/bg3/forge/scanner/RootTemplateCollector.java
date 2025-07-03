@@ -16,6 +16,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import io.quarkus.logging.Log;
+
 public class RootTemplateCollector {
     
     public static NodeList getGameObjectsFromXml(Path xmlPath) throws Exception {
@@ -63,7 +65,6 @@ public class RootTemplateCollector {
         public String MapKey;
         public String DisplayName;
         public String Description;
-        public Map<String, String> Attributes = new HashMap<>();
         
     }
 
@@ -75,12 +76,20 @@ public class RootTemplateCollector {
             RootTemplate template = new RootTemplate();
             List<Element> attributeElements = getAttributeElements(gameObject);
             for (Element attributeElement : attributeElements) {
-                template.Attributes.put(attributeElement.getAttribute("id"), attributeElement.getAttribute("value"));
+                String attribute = attributeElement.getAttribute("id");
+                if (attribute.equals("Stats")) {
+                    template.Stats = attributeElement.getAttribute("value");
+                } else if (attribute.equals("MapKey")) {
+                    template.MapKey = attributeElement.getAttribute("value");
+                } else if (attribute.equals("DisplayName")) {
+                    template.DisplayName = attributeElement.getAttribute("handle");
+                } else if (attribute.equals("Description")) {
+                    template.Description = attributeElement.getAttribute("handle");
+                }
             }
-            template.Stats = template.Attributes.get("Stats");
-            template.MapKey = template.Attributes.get("MapKey");
             templates.put(template.MapKey, template);
         }
+        Log.info("Scanned " + templates.size() + " root templates");
     }
 
 

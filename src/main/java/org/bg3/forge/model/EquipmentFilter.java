@@ -23,10 +23,6 @@ public record EquipmentFilter(
     @JsonProperty(required = false)
     EquipmentSlot slot,
 
-    @Description("The rarity of the equipment to filter for.")
-    @JsonProperty(required = false)
-    Rarity rarity,
-
     @JsonProperty(required = false)
     ArmorClassFilter armorClass) {
     public static List<EquipmentFilter> fromJson(String json) {

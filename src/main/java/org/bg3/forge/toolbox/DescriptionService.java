@@ -21,9 +21,16 @@ public class DescriptionService {
     }
 
     public String statDescription(StatsCollector.Stat stat) {
-        String description = stat.getField("Description");
+        String handle = stat.getField("Description");
+        if (handle == null) {
+            return null;
+        }
+        String description = bg3DB.library().getLocalizationCollector().getLocalization(handle);
         if (description != null) {
             String params = stat.getField("DescriptionParams");
+            if (params == null) {
+                return description;
+            }
             String[] paramArray = params.split(";");
             for (int i = 0; i < paramArray.length; i++) {
                 String param = paramArray[i];

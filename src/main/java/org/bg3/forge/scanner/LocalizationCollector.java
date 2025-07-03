@@ -18,6 +18,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import io.quarkus.logging.Log;
+
 public class LocalizationCollector {
     public static NodeList getLocalizationFromXml(Path xmlPath) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -27,7 +29,7 @@ public class LocalizationCollector {
         XPathFactory xPathFactory = XPathFactory.newInstance();
         XPath xPath = xPathFactory.newXPath();
         
-        String xpathExpression = "//contentList/context";
+        String xpathExpression = "//contentList/content";
         return (NodeList) xPath.evaluate(xpathExpression, document, XPathConstants.NODESET);
     }
     
@@ -41,7 +43,6 @@ public class LocalizationCollector {
                 elements.add((Element) node);
             }
         }
-        
         return elements;
     }
 
@@ -51,8 +52,10 @@ public class LocalizationCollector {
         return getLocalization(Handle.fromString(handle));
     }
     public String getLocalization(Handle handle) {
+        //Log.info("Getting localization for " + handle.id() + " " + handle.version());
         Map<Integer, String> versions = localization.get(handle.id());
         if (versions == null) {
+            //Log.info("No versions for " + handle.id());
             return null;
         }
         if (handle.version().equals("*")) {
@@ -73,6 +76,7 @@ public class LocalizationCollector {
             localization.computeIfAbsent(contentuid, k -> new HashMap<>()).put(version, content);
 
         }
+        Log.info("Scanned " + localization.size() + " localizations");
     }
     
 }

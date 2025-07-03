@@ -53,7 +53,7 @@ public class EquipmentDB {
 
     public void start(@Observes StartupEvent event) throws Exception {
         buildEquipment();
-        load();
+        //load();
     }
 
     private void buildEquipment() {
@@ -62,21 +62,48 @@ public class EquipmentDB {
         for (StatsCollector.Stat armor : armors.values()) {
             String id = armor.name;
             EquipmentType type = EquipmentType.valueOf(armor.type);
-            EquipmentSlot slot = EquipmentSlot.valueOf(armor.getField("Slot"));
+            EquipmentSlot slot = EquipmentSlot.fromString(armor.getField("Slot"));
+            if (slot == EquipmentSlot.Unknown) {
+                Log.debug("Unknown slot for " + id);
+                continue;
+            }
             Rarity rarity = Rarity.fromString(armor.getField("Rarity"));
             RootTemplateCollector.RootTemplate rootTemplate = libraryService.library()
                     .getRootTemplateCollector().templates.get(armor.getField("RootTemplate"));
-            String name = libraryService.library().getLocalizationCollector().getLocalization(rootTemplate.DisplayName);
-            String description = libraryService.library().getLocalizationCollector()
-                    .getLocalization(rootTemplate.Description);
+            if (rootTemplate == null) {
+                Log.debug("No root template for " + id);
+                continue;
+            }
+            if (rootTemplate.DisplayName == null) {
+                Log.debug("No display name for " + id);
+                continue;
+            }
+            String displayName = rootTemplate.DisplayName;
+            if (displayName == null || displayName.isEmpty()) {
+                Log.debug("No display name for " + id);
+                continue;
+            }
+            String name = libraryService.library().getLocalizationCollector().getLocalization(displayName);
+            if (name == null) {
+                Log.info("No name for " + id);
+                continue;
+            }
+            String description = "";
+            if (rootTemplate.Description != null) {
+                description = libraryService.library().getLocalizationCollector()
+                        .getLocalization(rootTemplate.Description);
+            } else {
+                Log.info("No description for " + id);
+            }
             StringBuilder boostDescription = new StringBuilder();
             descriptionService.armor(armor, (desc) -> boostDescription.append("<p>").append(desc).append("</p>"));
             Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boostDescription.toString(),
                     rootTemplate, armor);
-            equipmentDB.put(id, equipment);
+            Log.info("Adding " + id + " " + equipment.boostDescription());
+            //equipmentDB.put(id, equipment);
 
         }
-        Log.info("Building equipment embeddings");
+        Log.info("Added " + equipmentDB.size() + " to equipment database");
 
     }
 
@@ -123,10 +150,6 @@ public class EquipmentDB {
                 if (eq.slot() != null) {
                     Filter slotFilter = new MetadataFilterBuilder("slot").isEqualTo(eq.slot().name());
                     x.and(slotFilter);
-                }
-                if (eq.rarity() != null) {
-                    Filter rarityFilter = new MetadataFilterBuilder("rarity").isEqualTo(eq.rarity().name());
-                    x.and(rarityFilter);
                 }
                 filter.or(x);
             }

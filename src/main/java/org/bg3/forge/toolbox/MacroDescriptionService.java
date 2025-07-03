@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -26,8 +27,15 @@ public class MacroDescriptionService {
         Macro macro = new Macro();
         String function = macroString.substring(0, index).trim();
         macro.function = function;
-        String params = macroString.substring(index + 1, macroString.lastIndexOf(")"));
         macro.transformer = transformers.get(function);
+        if (macro.transformer == null) {
+            Log.debug("No transformer for " + macroString);
+            macro.transformer = (m) -> {
+                return macroString;
+            };
+            return macro;
+        }
+        String params = macroString.substring(index + 1, macroString.lastIndexOf(")"));
         if (params.isEmpty()) {
             return macro;
         }
