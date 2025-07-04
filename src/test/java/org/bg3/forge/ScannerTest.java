@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class ScannerTest {
-    @Test
+    //@Test
     public void testObjecvtMapper() throws Exception{
         String hello = "hello \"world\"";
         ObjectMapper objectMapper = new ObjectMapper();

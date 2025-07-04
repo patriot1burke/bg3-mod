@@ -69,6 +69,7 @@ public class LibraryService {
         return library;
     }
 
+    @Tool("Get all possible values for a Stat attribute")
     public List<String> getStatAttributeValues(String attributeName) {
         scanFiles();
         Set<String> values = library.statsCollector.collectAttributesValues(attributeName);

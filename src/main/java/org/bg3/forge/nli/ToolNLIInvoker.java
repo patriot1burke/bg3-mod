@@ -1,4 +1,4 @@
-package org.bg3.forge.util;
+package org.bg3.forge.nli;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -22,8 +22,10 @@ import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.service.tool.DefaultToolExecutor;
 import dev.langchain4j.service.tool.ToolExecutor;
+import io.quarkiverse.langchain4j.runtime.tool.QuarkusToolExecutor;
+import io.quarkus.logging.Log;
 
-public class CommandToolBox {
+public class ToolNLIInvoker {
 
 
     private List<ToolSpecification> toolSpecifications = new ArrayList<>();
@@ -37,28 +39,42 @@ public class CommandToolBox {
     private final ChatModel chat;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public CommandToolBox(ChatModel chat) {
+    public ToolNLIInvoker(ChatModel chat) {
         this.chat = chat;
     }
 
+    public void addToolSpecifications(List<ToolSpecification> toolSpecifications) {
+        this.toolSpecifications.addAll(toolSpecifications);
+    }
 
-    public void addToolbox(Object target) {
-        Method[] methods = target.getClass().getMethods();
+    public void addToolbox(Object toolBox, Class<?> toolClass) {
+        Method[] methods = toolClass.getMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(Tool.class)) {
-                toolSpecifications.add(ToolSpecifications.toolSpecificationFrom(method));
-                ToolExecutor toolExecutor = new DefaultToolExecutor(target, method);
-                toolExecutors.put(method.getName(), toolExecutor);
+                Tool tool = method.getAnnotation(Tool.class);
+                String toolName = tool.name().isEmpty() ? method.getName() : method.getName();
+                Method methodToUse = method;
+                if (toolClass != toolBox.getClass()) {
+                    try {
+                        methodToUse = toolBox.getClass().getMethod(method.getName(), method.getParameterTypes());
+                    } catch (NoSuchMethodException e) {
+                        throw new IllegalArgumentException("Method not found in tool box class: " + method.getName(), e);
+                    }
+                }
+                ToolExecutor toolExecutor = new DefaultToolExecutor(toolBox, method, methodToUse);
+                toolExecutors.put(toolName, toolExecutor);
                 if (method.getReturnType().equals(String.class)) {
-                    isDataTool.put(method.getName(), false);
+                    isDataTool.put(toolName, false);
                 } else {
-                    isDataTool.put(method.getName(), true);
+                    isDataTool.put(toolName, true);
                 }
             }
         }
     }
 
     public String execute(String command) throws Exception {
+        Log.info("Executing command: " + command);
+        Log.info("Tool specifications size: " + toolSpecifications.size());
         ChatRequest chatRequest = ChatRequest.builder()
                 .messages(SystemMessage.from(SYSTEM_MESSAGE), UserMessage.from(command))
                 .toolSpecifications(toolSpecifications)
