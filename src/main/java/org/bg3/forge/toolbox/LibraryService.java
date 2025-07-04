@@ -92,43 +92,48 @@ public class LibraryService {
 
     private List<String> getFunctions(Map<String, Set<String>> boosts, Set<String> macros) {
         for (String macro : macros) {
-            String[] tokens = macro.split(";");
+            String[] tokens = MacroDescriptionService.splitMacro(macro);
             for (String token : tokens) {
-                String expression = token;
-                int index = token.indexOf(":");
-                if (index > 0) {
-                    expression = token.substring(index + 1);
-                }
-                index = expression.indexOf('(');
-                if (index <= 0) {
-                    continue;
-                }
-                String functionName = expression.substring(0, index).trim();
-                int closingIndex = expression.lastIndexOf(')');
-                String params = expression.substring(index + 1, closingIndex);
-                params = params.trim();
-                Set<String> functionParams = boosts.computeIfAbsent(functionName, k -> new LinkedHashSet<>());
-                if (params.isEmpty()) {
-                    functionParams.add("");
-                    continue;
-                }
-                String[] paramTokens = params.split(",");
-                String parameters = null;
-                for (String param : paramTokens) {
-                    param = param.trim();
-                    if (parameters != null)
-                        parameters += ",";
-                    if (parameters == null)
-                        parameters = "";
-                    if (param.matches("^-?\\d+$")) {
-                        parameters += "number";
-                    } else if (param.matches("^\\d+d\\d+$")) {
-                        parameters += "die_roll";
-                    } else {
-                        parameters += param;
+                try {
+                    String expression = token.trim();
+                    int index = token.indexOf(":");
+                    if (index > 0) {
+                        expression = token.substring(index + 1);
                     }
+                    index = expression.indexOf('(');
+                    if (index <= 0) {
+                        continue;
+                    }
+                    String functionName = expression.substring(0, index).trim();
+                    int closingIndex = expression.lastIndexOf(')');
+                    String params = expression.substring(index + 1, closingIndex);
+                    params = params.trim();
+                    Set<String> functionParams = boosts.computeIfAbsent(functionName, k -> new LinkedHashSet<>());
+                    if (params.isEmpty()) {
+                        functionParams.add("");
+                        continue;
+                    }
+                    String[] paramTokens = params.split(",");
+                    String parameters = null;
+                    for (String param : paramTokens) {
+                        param = param.trim();
+                        if (parameters != null)
+                            parameters += ",";
+                        if (parameters == null)
+                            parameters = "";
+                        if (param.matches("^-?\\d+$")) {
+                            parameters += "number";
+                        } else if (param.matches("^\\d+d\\d+$")) {
+                            parameters += "die_roll";
+                        } else {
+                            parameters += param;
+                        }
+                    }
+                    functionParams.add(parameters);
+                } catch (Exception e) {
+                    Log.error("Error parsing boost function: '" + macro + "' '" + token + "'", e);
+                    throw e;
                 }
-                functionParams.add(parameters);
             }
         }
         List<String> functions = new ArrayList<>();

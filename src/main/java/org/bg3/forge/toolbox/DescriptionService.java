@@ -66,7 +66,7 @@ public class DescriptionService {
 
     public void macros(String macro, Consumer<String> writer) {
         if (macro != null) {
-            for (String boost : macro.split(";")) {
+            for (String boost : MacroDescriptionService.splitMacro(macro)) {
                 String macroDescription = macroDescriptionService.description(boost);
                 if (macroDescription != null) {
                     writer.accept(macroDescription);

@@ -26,6 +26,27 @@ public class MacroDescriptionService {
         initTransformers();
     }
 
+    public static String[] splitMacro(String macroString) {
+        int depth = 0;
+        List<String> argList = new ArrayList<>();
+        int paramIndex = 0;
+        for (int index = 0; index < macroString.length(); index++) {
+            if (macroString.charAt(index) == '(') {
+                depth++;
+            } else if (macroString.charAt(index) == ')') {
+                depth--;
+            } else if (depth == 0) {
+                if (macroString.charAt(index) == ';') {
+                    argList.add(macroString.substring(paramIndex, index).trim());
+                    paramIndex = index + 1;
+                } else if (index + 1 == macroString.length()) {
+                    argList.add(macroString.substring(paramIndex).trim());
+                }
+            }
+        }
+        return argList.toArray(new String[argList.size()]);
+    }
+
     public String description(String macroString) {
         Macro macro = fromString(macroString);
         if (macro != null) return macro.transformer.transform(macro);

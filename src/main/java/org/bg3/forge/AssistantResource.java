@@ -6,11 +6,13 @@ import java.util.regex.Pattern;
 
 import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataAgent;
+import org.bg3.forge.command.DataCommandService;
 import org.bg3.forge.model.Equipment;
 import org.bg3.forge.toolbox.EquipmentDB;
 import org.bg3.forge.toolbox.LibraryService;
 import org.jboss.logging.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.inject.Inject;
@@ -41,59 +43,20 @@ public class AssistantResource {
 	@Inject
 	EquipmentDB equipmentDB;
 
+	@Inject
+	DataCommandService assistantCommandService;
+
 	/**
 	 * Executes a natural language query and returns data in JSON format.
 	 */
 	@GET
 	@Path("/json")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response queryToJson(@QueryParam("query") String query) throws Exception {
-
-		String commands = forgeAgent.jsonCommands(query);
-		LOG.info("Commands: " + commands);
-		if (commands.isEmpty()) {
-			return Response.ok("[]").build();
-		}
-		String[] commandArray = commands.split(";");
-		String json = "";
-		if (commandArray.length > 1) {
-			json += "[";
-
-		}
-		boolean first = true;
-		for (String command : commandArray) {
-			if (first) {
-				first = false;
-			} else {
-				json += ",";
-			}
-			json += executeCommand(command.trim());
-		}
-		if (commandArray.length > 1) json += "]";
-		return Response.ok(json).build();
+	public String queryToJson(@QueryParam("query") String query) throws Exception {
+        LOG.info("QUERY: " + query);
+		return assistantCommandService.execute(query);
 	}
-	ObjectMapper objectMapper = new ObjectMapper();
 
-	static Pattern functionPattern = Pattern.compile("^(\\w+)\\((.*)\\)$");
-
-	private String executeCommand(String command) throws Exception{
-		Matcher matcher = functionPattern.matcher(command);
-		if (matcher.matches()) {
-			
-			String function = matcher.group(1);
-			String param = matcher.group(2);
-			LOG.info("Function: " + function + " Param: " + param);
-			if (function.equals("getStatAttributeValues")) {
-				String unquotedParam = param.replaceAll("^\"|\"$", "");
-				LOG.info("Unquoted param: " + unquotedParam);
-				List<String> statAttributeValues = library.getStatAttributeValues(unquotedParam);
-				return objectMapper.writeValueAsString(statAttributeValues);
-			} else if (function.equals("getAllBoostFunctionSignatures")) {
-				return objectMapper.writeValueAsString(library.getAllBoostFunctionSignatures());
-			}
-		}
-		return "";
-	}
 
 	/**
 	 * Executes a natural language query and feeds back data into the LLM to provide a natural language response.
@@ -108,8 +71,11 @@ public class AssistantResource {
         if (items.isEmpty()) {
             response = "I couldn't find any items that match your query.";
         } else {
+			/*
            response = EquipmentModel.toJson(items);
 		   response = forgeAgent.list(query, response);
+		   */
+		  
 
         }
 		return Response.ok(response).build();

@@ -11,9 +11,17 @@ import org.bg3.forge.toolbox.MacroDescriptionService;
 import org.bg3.forge.toolbox.MacroDescriptionService.Macro;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class ScannerTest {
+    @Test
+    public void testObjecvtMapper() throws Exception{
+        String hello = "hello \"world\"";
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println(objectMapper.writeValueAsString(hello));
 
+    }
 
 
     //@Test
