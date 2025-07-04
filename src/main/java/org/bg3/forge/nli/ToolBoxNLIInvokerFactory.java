@@ -32,14 +32,14 @@ public class ToolBoxNLIInvokerFactory {
     Map<Class<?>, List<ToolSpecification>> toolNLIInvokers = new ConcurrentHashMap<>();
 
     @Produces
-    public ToolNLIInvoker createToolNLIInvoker(InjectionPoint injectionPoint) {
+    public ToolBoxNLIInvoker createToolNLIInvoker(InjectionPoint injectionPoint) {
         //Log.info("Creating ToolNLIInvoker******");
         ToolBoxNLI toolBoxNLI = injectionPoint.getAnnotated().getAnnotation(ToolBoxNLI.class);
         if (toolBoxNLI == null) {
             throw new IllegalArgumentException("ToolBoxNLI annotation not found");
         }
         Class<?>[] toolClasses = toolBoxNLI.value();
-        ToolNLIInvoker toolNLIInvoker = new ToolNLIInvoker(chat);
+        ToolBoxNLIInvoker toolNLIInvoker = new ToolBoxNLIInvoker(chat);
         for (Class<?> toolClass : toolClasses) {
             List<ToolSpecification> toolSpecifications = getToolSpecifications(toolClass);
             if (toolSpecifications.isEmpty()) {

@@ -6,7 +6,7 @@ import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataAgent;
 import org.bg3.forge.model.Equipment;
 import org.bg3.forge.nli.ToolBoxNLI;
-import org.bg3.forge.nli.ToolNLIInvoker;
+import org.bg3.forge.nli.ToolBoxNLIInvoker;
 import org.bg3.forge.toolbox.EquipmentDB;
 import org.bg3.forge.toolbox.LibraryService;
 import org.jboss.logging.Logger;
@@ -40,7 +40,7 @@ public class AssistantResource {
 
 	@Inject
 	@ToolBoxNLI(LibraryService.class)
-	ToolNLIInvoker assistantCommandService;
+	ToolBoxNLIInvoker assistantCommandService;
 
 	/**
 	 * Executes a natural language query and returns data in JSON format.
