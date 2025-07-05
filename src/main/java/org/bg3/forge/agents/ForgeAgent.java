@@ -20,15 +20,16 @@ public interface ForgeAgent {
     String answer(@UserMessage String question, String json);
 
     @SystemMessage("""
-        Your task answer questions about JSON data obtained from a Baldur's Gate 3 item database.
+        Answer a search query for a Baldur's Gate 3 item database.  Use the following JSON data as input to base your answer on.
+    
 
-        Input:
+        JSON Input:
         {json}
 
         Output:
-        Any item name mentioned should be wrapped in an HTML anchor with an anchor attribute called "data-tooltip".  The value of "data-tooltip" should be a json string that sets a "title" value to the name of the item and sets the "content" value to be the boostDescription of the item and sets the "footer" value to the the description of the item.
+        The output should be in HTML format.  Do not include any markdown formatting. Summarize what you found in a paragraph.
         """)
-    String list(@UserMessage String question, String json);
+    String queryEquipment(@UserMessage String question, String json);
 
     @SystemMessage("""
         Analyze the user's request to return a command to execute.

@@ -11,6 +11,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+
+import org.bg3.forge.model.RootTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -60,35 +62,30 @@ public class RootTemplateCollector {
         return attributeElements;
     }
 
-    public static class RootTemplate {
-        public String Stats;
-        public String MapKey;
-        public String DisplayName;
-        public String Description;
-        
-    }
-
     public Map<String, RootTemplate> templates = new HashMap<>();
 
     public void scan(Path xmlPath) throws Exception {
         List<Element> gameObjects = getGameObjectsAsElements(xmlPath);
         int sum = 0;
         for (Element gameObject : gameObjects) {
-            RootTemplate template = new RootTemplate();
+            String stats = null;
+            String mapKey = null;
+            String displayName = null;
+            String description = null;
             List<Element> attributeElements = getAttributeElements(gameObject);
             for (Element attributeElement : attributeElements) {
                 String attribute = attributeElement.getAttribute("id");
                 if (attribute.equals("Stats")) {
-                    template.Stats = attributeElement.getAttribute("value");
+                    stats = attributeElement.getAttribute("value");
                 } else if (attribute.equals("MapKey")) {
-                    template.MapKey = attributeElement.getAttribute("value");
+                    mapKey = attributeElement.getAttribute("value");
                 } else if (attribute.equals("DisplayName")) {
-                    template.DisplayName = attributeElement.getAttribute("handle");
+                    displayName = attributeElement.getAttribute("handle");
                 } else if (attribute.equals("Description")) {
-                    template.Description = attributeElement.getAttribute("handle");
+                    description = attributeElement.getAttribute("handle");
                 }
             }
-            templates.put(template.MapKey, template);
+            templates.put(mapKey, new RootTemplate(stats, mapKey, displayName, description));
             sum++;
         }
         Log.info("Scanned " + sum + " root templates");

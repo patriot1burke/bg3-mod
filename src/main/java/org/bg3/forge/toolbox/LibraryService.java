@@ -10,8 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bg3.forge.model.RootTemplate;
+import org.bg3.forge.model.StatModel;
 import org.bg3.forge.scanner.Bg3Library;
+import org.bg3.forge.scanner.StatsCollector;
 
+import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
@@ -45,8 +49,10 @@ public class LibraryService {
 
             library.getRootTemplateCollector()
                     .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
-            library.getRootTemplateCollector()
+                    library.getRootTemplateCollector()
                     .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"));
+                    library.getRootTemplateCollector()
+                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/RootTemplates/_merged.lsx"));
             library.getLocalizationCollector()
                     .scan(Path.of("/mnt/c/Users/patri/mods/bg3-localization/Localization/English/english.xml"));
 
@@ -57,6 +63,30 @@ public class LibraryService {
 
     public Bg3Library library() {
         return library;
+    }
+
+    @Tool("Find a root template by stat name")
+    public RootTemplate findRootTemplateByStatName(String statName) {
+        Log.infof("Finding root template for stat: %s", statName);
+        for (RootTemplate rootTemplate : library.getRootTemplateCollector().templates.values()) {
+            if (statName.equals(rootTemplate.Stats())) {
+                return rootTemplate;
+            }
+        }
+        return null;
+    }
+
+    @Tool("Get or find or show a stat by name")
+    public StatModel getStatByName(String name, @P(value ="Add parent data?", required = false) boolean parentData) {
+        StatsCollector.Stat stat = library.statsCollector.getByName(name);
+        if (stat == null) {
+            return null;
+        }
+        if (parentData) {
+            return new StatModel(stat.name, stat.type, stat.using, stat.aggregateData());
+        } else {
+            return new StatModel(stat.name, stat.type, stat.using, stat.data);
+        }
     }
 
     @Tool("Get all possible values for a Stat attribute")

@@ -1,6 +1,5 @@
 package org.bg3.forge.model;
 
-import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
 
 public record Equipment(
@@ -11,7 +10,7 @@ public record Equipment(
     String name,
     String description,
     String boostDescription,
-    RootTemplateCollector.RootTemplate rootTemplate,
+    RootTemplate rootTemplate,
     StatsCollector.Stat stat
 ) {
 

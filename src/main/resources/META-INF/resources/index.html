@@ -284,13 +284,95 @@
             padding: 2px 5px;
             margin-right: 5px;
         }
+
+        /* Tooltip/Popup styles */
+        .tooltip {
+            position: absolute;
+            background-color: #2a2d30;
+            background-image: linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199);
+            border: 2px solid #BCAE79;
+            border-radius: 8px;
+            padding: 12px;
+            max-width: 300px;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #e8e8e8;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .tooltip.pinned {
+            pointer-events: auto;
+            border-color: #a89c69;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+        }
+
+        .tooltip-close {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px;
+            border-radius: 3px;
+            display: none;
+        }
+
+        .tooltip.pinned .tooltip-close {
+            display: block;
+        }
+
+        .tooltip-close:hover {
+            color: #e8e8e8;
+            background-color: #444;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            color: #BCAE79;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .tooltip-content {
+            margin-bottom: 8px;
+        }
+
+        .tooltip-footer {
+            font-size: 12px;
+            color: #aaa;
+            border-top: 1px solid #444;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .tooltip-link {
+            color: #BCAE79;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .tooltip-link:hover {
+            color: #a89c69;
+        }
     </style>
 </head>
 
 <body>
     <!-- Banner across the top -->
     <div class="banner">
-        <img src="/favicon.ico" alt="Baldur's Gate 3 Logo">
+        <img src="/favicon.ico" alt="Baldur's Gate 3 Logo" data-tooltip='{"title": "Item Details", "content": "This is a powerful weapon with +5 attack bonus", "footer": "Rare item"}'>
         Baldur's Forge Assistant
     </div>
 
@@ -301,7 +383,7 @@
             <div class="left-panel">
                 <div class="chat-container" id="chat-container">
                     <div class="message assistant-message">
-                        Hello! I'm your Baldur's Forge Assistant. Ask me anything about Baldur's Gate 3 items.
+                        Hello! I'm your Baldur's Forge Assistant. Ask me anything about Baldur's Gate 3 items. <a data-tooltip='{"title":"Helmet of Arcane Acuity","content":"<p>Dexterity Saving Throws +1</p>","footer":"Subtle magics are woven into the helmet&apos;s leather panes - for a powerful offence is sometimes still the best defence."}'>Helmet of Arcane Acuity</a>
                     </div>
                 </div>
                 <div class="input-container">
@@ -371,6 +453,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Tooltip container -->
+    <div id="tooltip" class="tooltip">
+        <button class="tooltip-close" title="Close tooltip (Esc)">×</button>
+        <div class="tooltip-title"></div>
+        <div class="tooltip-content"></div>
+        <div class="tooltip-footer"></div>
+    </div>
+
     <script>
         $(document).ready(function() {
             const $chatContainer = $('#chat-container');
@@ -764,6 +855,159 @@
         
             // Initialize
             updateClearButtonVisibility();
+
+            // Tooltip functionality
+            const $tooltip = $('#tooltip');
+            let tooltipTimeout;
+            let isTooltipPinned = false;
+
+            // Function to show tooltip
+            function showTooltip(event, title, content, footer) {
+                const $tooltipTitle = $tooltip.find('.tooltip-title');
+                const $tooltipContent = $tooltip.find('.tooltip-content');
+                const $tooltipFooter = $tooltip.find('.tooltip-footer');
+
+                // Set content
+                $tooltipTitle.html(title || '');
+                $tooltipContent.html(content || '');
+                $tooltipFooter.html(footer || '');
+
+                // Hide title/footer if empty
+                $tooltipTitle.toggle(!!title);
+                $tooltipFooter.toggle(!!footer);
+
+                // Position tooltip near mouse
+                const mouseX = event.pageX;
+                const mouseY = event.pageY;
+                const tooltipWidth = 250; // Approximate width
+                const tooltipHeight = 150; // Approximate height
+                const windowWidth = $(window).width();
+                const windowHeight = $(window).height();
+
+                let left = mouseX + 15; // Offset from mouse
+                let top = mouseY - 10;
+
+                // Adjust if tooltip would go off screen
+                if (left + tooltipWidth > windowWidth) {
+                    left = mouseX - tooltipWidth - 15;
+                }
+                if (top + tooltipHeight > windowHeight) {
+                    top = mouseY - tooltipHeight + 10;
+                }
+
+                $tooltip.css({
+                    left: left + 'px',
+                    top: top + 'px'
+                });
+
+                // Show tooltip
+                $tooltip.addClass('show');
+            }
+
+            // Function to hide tooltip
+            function hideTooltip() {
+                if (!isTooltipPinned) {
+                    $tooltip.removeClass('show');
+                }
+            }
+
+            // Function to pin tooltip
+            function pinTooltip() {
+                isTooltipPinned = true;
+                $tooltip.addClass('pinned');
+            }
+
+            // Function to unpin tooltip
+            function unpinTooltip() {
+                isTooltipPinned = false;
+                $tooltip.removeClass('pinned show');
+            }
+
+            // Add tooltip functionality to elements with data-tooltip attribute
+            $(document).on('mouseenter', '[data-tooltip]', function(event) {
+                if (isTooltipPinned) return; // Don't show new tooltip if one is pinned
+                
+                const $element = $(this);
+                const tooltipData = $element.data('tooltip');
+                
+                // Parse tooltip data
+                let title = '';
+                let content = '';
+                let footer = '';
+
+                if (typeof tooltipData === 'string') {
+                    content = tooltipData;
+                } else if (typeof tooltipData === 'object') {
+                    title = tooltipData.title || '';
+                    content = tooltipData.content || '';
+                    footer = tooltipData.footer || '';
+                }
+
+                // Clear any existing timeout
+                clearTimeout(tooltipTimeout);
+                
+                // Show tooltip after a small delay
+                tooltipTimeout = setTimeout(() => {
+                    showTooltip(event, title, content, footer);
+                }, 300);
+            });
+
+            $(document).on('mouseleave', '[data-tooltip]', function() {
+                clearTimeout(tooltipTimeout);
+                hideTooltip();
+            });
+
+            // Click to pin tooltip
+            $(document).on('click', '[data-tooltip]', function(event) {
+                if ($tooltip.hasClass('show') && !isTooltipPinned) {
+                    event.preventDefault();
+                    pinTooltip();
+                }
+            });
+
+            // Hide tooltip when moving mouse away (only if not pinned)
+            $(document).on('mousemove', function(event) {
+                if ($tooltip.hasClass('show') && !isTooltipPinned) {
+                    const $hoveredElement = $(event.target);
+                    if (!$hoveredElement.closest('[data-tooltip]').length) {
+                        hideTooltip();
+                    }
+                }
+            });
+
+            // Close button click
+            $tooltip.on('click', '.tooltip-close', function() {
+                unpinTooltip();
+            });
+
+            // Escape key to unpin tooltip
+            $(document).on('keydown', function(event) {
+                if (event.key === 'Escape' && isTooltipPinned) {
+                    unpinTooltip();
+                }
+            });
+
+            // Example: Add tooltip to some sample links (you can remove this)
+            function addSampleTooltips() {
+                // Add tooltips to some sample content
+                $('.sample-content h3').each(function() {
+                    $(this).attr('data-tooltip', {
+                        title: 'Information',
+                        content: 'This is a sample tooltip for the ' + $(this).text() + ' section.',
+                        footer: 'Hover for more details'
+                    });
+                });
+
+                // Add tooltip to the banner
+                $('.banner').attr('data-tooltip', {
+                    title: 'Baldur\'s Forge Assistant',
+                    content: 'Your AI assistant for Baldur\'s Gate 3 data and information.',
+                    footer: 'Powered by advanced AI'
+                });
+            }
+
+            // Initialize sample tooltips
+            //addSampleTooltips();
         });
 </script>
 </body>

@@ -49,9 +49,19 @@ public class StatsCollector {
             }
             return val;
         }
-        
-        
-    }
+
+        public Map<String, String> aggregateData() {
+            Map<String, String> data = new HashMap<>();
+            if (using != null) {
+                Stat parent = library.getByName(using);
+                if (parent != null) {
+                    data.putAll(parent.aggregateData());
+                }
+            }
+            data.putAll(this.data);
+            return data;
+        }
+     }
 
     public static class Library extends HashMap<String, Map<String, Stat>> {
         private static final String ARMOR_TYPE = "Armor";

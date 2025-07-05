@@ -3,6 +3,7 @@ package org.bg3.forge;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.bg3.forge.model.RootTemplate;
 import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
 
@@ -36,7 +37,7 @@ public class ScannerTest {
     public void testRootTemplateScanner() throws Exception {
         RootTemplateCollector scanner = new RootTemplateCollector();
         scanner.scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
-        for (RootTemplateCollector.RootTemplate template : scanner.templates.values()) {
+        for (RootTemplate template : scanner.templates.values()) {
             System.out.println(template);
         }
     }

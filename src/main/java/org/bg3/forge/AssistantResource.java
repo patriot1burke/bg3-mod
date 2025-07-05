@@ -40,7 +40,7 @@ public class AssistantResource {
 	EquipmentDB equipmentDB;
 
 	@Inject
-	@ToolBoxNLI(LibraryService.class)
+	@ToolBoxNLI({EquipmentDB.class, LibraryService.class})
 	ToolBoxNLIInvoker assistantCommandService;
 
 	/**
@@ -68,12 +68,8 @@ public class AssistantResource {
         if (items.isEmpty()) {
             response = "I couldn't find any items that match your query.";
         } else {
-			/*
-           response = EquipmentModel.toJson(items);
-		   response = forgeAgent.list(query, response);
-		   */
-		  
-
+           response = forgeAgent.queryEquipment(query, EquipmentModel.toJson(items));
+		   LOG.info("RESPONSE:\n " + response + "\n");
         }
 		return Response.ok(response).build();
 	}

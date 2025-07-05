@@ -1,10 +1,12 @@
 package org.bg3.forge.toolbox;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataAgent;
 import org.bg3.forge.model.Equipment;
 import org.bg3.forge.model.EquipmentFilter;
@@ -13,6 +15,7 @@ import org.bg3.forge.model.EquipmentModel;
 import org.bg3.forge.model.EquipmentSlot;
 import org.bg3.forge.model.EquipmentType;
 import org.bg3.forge.model.Rarity;
+import org.bg3.forge.model.RootTemplate;
 import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
 import org.bg3.forge.util.FilterExpression;
@@ -53,6 +56,9 @@ public class EquipmentDB {
     @Inject
     MetadataAgent metadataAgent;
 
+    @Inject
+    ForgeAgent forgeAgent;
+
     Map<String, Equipment> equipmentDB = new HashMap<>();
 
     public void start(@Observes StartupEvent event) throws Exception {
@@ -72,13 +78,13 @@ public class EquipmentDB {
                 continue;
             }
             Rarity rarity = Rarity.fromString(armor.getField("Rarity"));
-            RootTemplateCollector.RootTemplate rootTemplate = libraryService.library()
+            RootTemplate rootTemplate = libraryService.library()
                     .getRootTemplateCollector().templates.get(armor.getField("RootTemplate"));
             if (rootTemplate == null) {
                 Log.debug("No root template for " + id);
                 continue;
             }
-            String displayName = rootTemplate.DisplayName;
+            String displayName = rootTemplate.DisplayName();
             if (displayName == null || displayName.isEmpty()) {
                 Log.debug("No display name for " + id);
                 continue;
@@ -89,9 +95,9 @@ public class EquipmentDB {
                 continue;
             }
             String description = "";
-            if (rootTemplate.Description != null) {
+            if (rootTemplate.Description() != null) {
                 description = libraryService.library().getLocalizationCollector()
-                        .getLocalization(rootTemplate.Description);
+                        .getLocalization(rootTemplate.Description());
             } else {
                 Log.debug("No description for " + id);
             }
@@ -150,7 +156,25 @@ public class EquipmentDB {
         Log.info("Ingested " + equipmentDB.size() + " items");
     }
 
-    @Tool("Search or find or show items in the equipment database")
+    @Tool("Find an item in the equipment database by name")
+    public EquipmentModel findByName(String name) {
+        Equipment equipment = equipmentDB.values().stream().filter(e -> e.name().equals(name)).findFirst().orElse(null);
+        if (equipment == null) {
+            return null;
+        }
+        return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription());
+    }
+
+    public static record SearchResult(List<EquipmentModel> items, String summary) {}
+
+    @Tool("Search or find or show items in the equipment database based on a natural language query")
+    @Transactional
+    public SearchResult searchAndSummary(String queryString) {
+        List<EquipmentModel> models = search(queryString);
+        String summary = forgeAgent.queryEquipment(queryString, EquipmentModel.toJson(models));
+        return new SearchResult(models, summary);
+    }
+
     @Transactional
     public List<EquipmentModel> search(String queryString) {
         Log.infof("Querying for: %s", queryString);
