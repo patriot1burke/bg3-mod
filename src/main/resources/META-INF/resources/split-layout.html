@@ -372,6 +372,28 @@
         .tooltip-link:hover {
             color: #a89c69;
         }
+
+        /* List styling */
+        ul {
+            margin-left: 20px;
+            padding-left: 10px;
+        }
+
+        ul li {
+            margin-bottom: 5px;
+        }
+
+        .tool-results-list {
+            margin-left: 25px;
+            padding-left: 15px;
+            list-style-type: disc;
+        }
+
+        .tool-results-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: #e8e8e8;
+        }
     </style>
 </head>
 
@@ -746,25 +768,38 @@
 
                        // Function to add JSON data as a table
             function addToolMessage(jsonData) {
-                const $messageDiv = $('<div>', { class: 'message data-message' });
         
                 try {
                     const data = JSON.parse(jsonData);
 
                     const items = data[0].response.items;
-                    const $container = $('<div>');
-                    createObjectTable(items, $container);
-                    $messageDiv.append($container);
-                    $chatContainer.append($messageDiv)
-
-                    const summary = data[0].response.summary;
-                    const $summaryDiv = $('<div>', {
+                    const $resultDev = $('<div>', {
                         class: `message assistant-message`
                     });
-                    $summaryDiv.html(summary);
-                    $chatContainer.append($summaryDiv);
+      
+                    const $list = $('<ul>', { class: 'tool-results-list' });
+                    for (const item of items) {
+                        const $listItem = $('<li>');
+                        const $itemAnchor =  $('<a>', {
+                            text: item.name
+                            
+                        });
+                        $itemAnchor.data("equipment", item);
+                        $itemAnchor.attr('equipment-tooltip', item.name);
+                        $listItem.append($itemAnchor);
+                        $list.append($listItem);
+                    }
+                    const $paragraph = $('<p>');
+                    $paragraph.append($list);
+                    $resultDev.append($paragraph);
+
+                    const $summaryDiv = $('<div>');                    
+                    $summaryDiv.html(data[0].response.summary);
+                    $resultDev.append($summaryDiv);
+                    $chatContainer.append($resultDev);
                 } catch (e) {
                     // If parsing fails, just show the raw response
+                    const $messageDiv = $('<div>', { class: 'message data-message' });
                     $messageDiv.text(jsonData);
                     $chatContainer.append($messageDiv);
                 }
@@ -926,19 +961,39 @@
             let isTooltipPinned = false;
 
             // Function to show tooltip
-            function showTooltip(event, title, content, footer) {
+            function showTooltip(event, equipment) {
                 const $tooltipTitle = $tooltip.find('.tooltip-title');
                 const $tooltipContent = $tooltip.find('.tooltip-content');
                 const $tooltipFooter = $tooltip.find('.tooltip-footer');
 
-                // Set content
-                $tooltipTitle.html(title || '');
-                $tooltipContent.html(content || '');
-                $tooltipFooter.html(footer || '');
+                 // Set content
+                $tooltipTitle.html(equipment.name || '');
+                $tooltipContent.html(equipment.boostDescription || '');
+                $tooltipFooter.html(equipment.description || '');
+
+                // Set tooltip title color programmatically
+                if (equipment.rarity === 'Legendary') {
+                    $tooltip.css('background-image', 'linear-gradient(to bottom, #563E0D99, #1B1A1999, #1B1A1999, #40295199')
+                    $tooltipTitle.css('color', '#B7861D');
+                } else if (equipment.rarity === 'VeryRare') {
+                    $tooltip.css('background-image', 'linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199')
+                    $tooltipTitle.css('color', '#D1017B');
+                } else if (equipment.rarity === 'Rare') {
+                    $tooltip.css('background-image', 'linear-gradient(to bottom, #00374999, #1B1A1999, #1B1A1999, #40295199')
+                    $tooltipTitle.css('color', '#01BFFF');
+                } else if (equipment.rarity === 'Uncommon') {
+                    $tooltip.css('background-image', 'linear-gradient(to bottom, #00491599, #1B1A1999, #1B1A1999, #40295199')
+                    $tooltipTitle.css('color', '#01BD39');
+                } else if (equipment.rarity === 'Common') {
+                    $tooltip.css('background-image', 'linear-gradient(to bottom, #1B1A1999, #1B1A1999, #1B1A1999, #40295199')
+                    $tooltipTitle.css('color', '#FFFFFF');
+                } // You can change this color as needed
+
+                
 
                 // Hide title/footer if empty
-                $tooltipTitle.toggle(!!title);
-                $tooltipFooter.toggle(!!footer);
+                //$tooltipTitle.toggle(!!title);
+                //$tooltipFooter.toggle(!!footer);
 
                 // Position tooltip near mouse
                 const mouseX = event.pageX;
@@ -988,41 +1043,29 @@
             }
 
             // Add tooltip functionality to elements with data-tooltip attribute
-            $(document).on('mouseenter', '[data-tooltip]', function(event) {
+            $(document).on('mouseenter', '[equipment-tooltip]', function(event) {
                 if (isTooltipPinned) return; // Don't show new tooltip if one is pinned
                 
                 const $element = $(this);
-                const tooltipData = $element.data('tooltip');
+                const equipment = $element.data("equipment");
                 
-                // Parse tooltip data
-                let title = '';
-                let content = '';
-                let footer = '';
-
-                if (typeof tooltipData === 'string') {
-                    content = tooltipData;
-                } else if (typeof tooltipData === 'object') {
-                    title = tooltipData.title || '';
-                    content = tooltipData.content || '';
-                    footer = tooltipData.footer || '';
-                }
 
                 // Clear any existing timeout
                 clearTimeout(tooltipTimeout);
                 
                 // Show tooltip after a small delay
                 tooltipTimeout = setTimeout(() => {
-                    showTooltip(event, title, content, footer);
+                    showTooltip(event, equipment);
                 }, 300);
             });
 
-            $(document).on('mouseleave', '[data-tooltip]', function() {
+            $(document).on('mouseleave', '[equipment-tooltip]', function() {
                 clearTimeout(tooltipTimeout);
                 hideTooltip();
             });
 
             // Click to pin tooltip
-            $(document).on('click', '[data-tooltip]', function(event) {
+            $(document).on('click', '[equipment-tooltip]', function(event) {
                 if ($tooltip.hasClass('show') && !isTooltipPinned) {
                     event.preventDefault();
                     pinTooltip();
@@ -1033,7 +1076,7 @@
             $(document).on('mousemove', function(event) {
                 if ($tooltip.hasClass('show') && !isTooltipPinned) {
                     const $hoveredElement = $(event.target);
-                    if (!$hoveredElement.closest('[data-tooltip]').length) {
+                    if (!$hoveredElement.closest('[equipment-tooltip]').length) {
                         hideTooltip();
                     }
                 }
