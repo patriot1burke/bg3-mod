@@ -9,6 +9,7 @@ import org.bg3.forge.agents.MetadataAgent;
 import org.bg3.forge.model.Equipment;
 import org.bg3.forge.model.EquipmentFilter;
 import org.bg3.forge.model.EquipmentFilters;
+import org.bg3.forge.model.EquipmentModel;
 import org.bg3.forge.model.EquipmentSlot;
 import org.bg3.forge.model.EquipmentType;
 import org.bg3.forge.model.Rarity;
@@ -16,6 +17,7 @@ import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
 import org.bg3.forge.util.FilterExpression;
 
+import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -148,9 +150,34 @@ public class EquipmentDB {
         Log.info("Ingested " + equipmentDB.size() + " items");
     }
 
+    @Tool("Search or find or show items in the equipment database")
     @Transactional
-    public List<Equipment> query(String queryString) {
+    public List<EquipmentModel> search(String queryString) {
         Log.infof("Querying for: %s", queryString);
+        // getting the filter is not very reliable or accurate
+        // need to play with it more
+        //Filter filter = getFilter(queryString);
+
+        Embedding embedding = embeddingModel.embed(queryString).content();
+        EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
+                .queryEmbedding(embedding)
+                //.filter(filter.filter())
+                .minScore(0.5)
+                .maxResults(10)
+                .build();
+
+        EmbeddingSearchResult<TextSegment> search = embeddingStore.search(request);
+        Log.info("Search results: " + search.matches().size());
+        List<Equipment> result = search.matches().stream().map(m -> {
+            String id = m.embedded().metadata().getString("id");
+            return equipmentDB.get(id);
+        }).toList();
+
+        return result.stream().map(eq -> new EquipmentModel(eq.id(), eq.type(), eq.slot(), eq.rarity(), eq.name(), eq.description(), eq.boostDescription())).toList();
+
+    }
+
+    private Filter getFilter(String queryString) {
         EquipmentFilters filters = metadataAgent.answer(queryString);
         FilterExpression filter = new FilterExpression();
         if (filters != null && filters.filters() != null && !filters.filters().isEmpty()) {
@@ -167,23 +194,7 @@ public class EquipmentDB {
                 filter.or(x);
             }
         }
-
-        Embedding embedding = embeddingModel.embed(queryString).content();
-        EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                .queryEmbedding(embedding)
-                //.filter(filter.filter())
-                .minScore(0.5)
-                .maxResults(10)
-                .build();
-
-        EmbeddingSearchResult<TextSegment> search = embeddingStore.search(request);
-        Log.info("Search results: " + search.matches().size());
-        return search.matches().stream().map(m -> {
-            Log.info("Score: " + m.score());
-            String id = m.embedded().metadata().getString("id");
-            return equipmentDB.get(id);
-        }).toList();
-
+        return filter.filter();
     }
 
 }

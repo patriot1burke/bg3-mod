@@ -1,31 +1,21 @@
 package org.bg3.forge.toolbox;
 
-import org.bg3.forge.model.Equipment;
-import org.bg3.forge.model.EquipmentSlot;
-import org.bg3.forge.model.EquipmentType;
-import org.bg3.forge.scanner.Bg3Library;
-import org.bg3.forge.scanner.RootTemplateCollector;
-import org.bg3.forge.scanner.StatsCollector;
-
-import dev.langchain4j.agent.tool.Tool;
-import io.quarkus.logging.Log;
-import io.quarkus.runtime.StartupEvent;
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
+
+import org.bg3.forge.scanner.Bg3Library;
+
+import dev.langchain4j.agent.tool.Tool;
+import io.quarkus.logging.Log;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class LibraryService {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.bg3.forge.agents.ForgeAgent;
 import org.bg3.forge.agents.MetadataAgent;
 import org.bg3.forge.model.Equipment;
+import org.bg3.forge.model.EquipmentModel;
 import org.bg3.forge.nli.ToolBoxNLI;
 import org.bg3.forge.nli.ToolBoxNLIInvoker;
 import org.bg3.forge.toolbox.EquipmentDB;
@@ -61,7 +62,7 @@ public class AssistantResource {
 	@Path("/ask")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response naturalLanguage(@QueryParam("query") String query) throws Exception {
-		List<Equipment> items = equipmentDB.query(query);
+		List<EquipmentModel> items = equipmentDB.search(query);
 
         String response = "";
         if (items.isEmpty()) {
@@ -76,23 +77,5 @@ public class AssistantResource {
         }
 		return Response.ok(response).build();
 	}
-
-	record EquipmentModel(String name,String type, String slot, String rarity, String boostDescription, String description) {
-		public static String toJson(List<Equipment> equipments) throws Exception {
-			return new ObjectMapper().writeValueAsString(equipments.stream().map(EquipmentModel::fromEquipment).toList());
-		}
-		public static EquipmentModel fromEquipment(Equipment equipment) {
-			return new EquipmentModel(
-				equipment.name(),
-				equipment.type().name(),
-				equipment.slot().name(),
-				equipment.rarity().name(),
-				equipment.boostDescription(),
-				equipment.description()
-			);
-		}
-	}
-
-
 
 }

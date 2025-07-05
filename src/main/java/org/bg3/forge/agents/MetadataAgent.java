@@ -2,9 +2,6 @@ package org.bg3.forge.agents;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.List;
-
-import org.bg3.forge.model.EquipmentFilter;
 import org.bg3.forge.model.EquipmentFilters;
 
 import dev.langchain4j.service.SystemMessage;

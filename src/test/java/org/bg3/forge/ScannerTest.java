@@ -2,14 +2,9 @@ package org.bg3.forge;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
-import org.bg3.forge.toolbox.MacroDescriptionService;
-import org.bg3.forge.toolbox.MacroDescriptionService.Macro;
-import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

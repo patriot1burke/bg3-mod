@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.bg3.forge.scanner.StatsCollector.Stat;
 
@@ -138,8 +137,6 @@ public class MacroDescriptionService {
             return "Set the wearer's " + macro.args[0] + " to " + macro.args[1] + " unless the wearer's " + macro.args[0] + " is already higher";
         });
         transformers.put("ActionResource", (macro) -> {
-            int num = Integer.parseInt(macro.args[1]);
-
             if (macro.args[0].endsWith("Point")) {
                 return macro.args[1] + " " + macro.args[0].substring(0, macro.args[1].indexOf("Point")) + " Points";
             }

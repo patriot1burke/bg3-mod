@@ -1,12 +1,6 @@
 package org.bg3.forge.util;
 
-import java.util.Collection;
-import java.util.UUID;
-
 import dev.langchain4j.store.embedding.filter.Filter;
-import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
-import dev.langchain4j.store.embedding.filter.logical.And;
-import dev.langchain4j.store.embedding.filter.logical.Or;
 
 public class FilterExpression {
     Filter filter;

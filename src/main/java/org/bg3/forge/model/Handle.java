@@ -1,7 +1,5 @@
 package org.bg3.forge.model;
 
-import io.quarkus.logging.Log;
-
 public record Handle(String id, String version) {
 
     public static Handle fromString(String handle) {

@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import dev.langchain4j.model.chat.Capability;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import jakarta.enterprise.context.ApplicationScoped;
 
 public class StrictJsonSchemaChatModelProvider implements Supplier<ChatModel> {
     @Override
