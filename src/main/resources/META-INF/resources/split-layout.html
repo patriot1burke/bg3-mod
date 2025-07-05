@@ -14,6 +14,27 @@
             box-sizing: border-box;
         }
 
+        .rarity-legendary {
+            color: #B7861D;
+        }
+
+        .rarity-veryrare {
+            color: #D1017B;
+        }
+
+        .rarity-rare {
+            color: #01BFFF;
+        }
+
+        .rarity-uncommon {
+            color: #01BD39;
+        }
+
+        .rarity-common {
+            color: #FFFFFF;
+        }
+
+
         body {
             height: 100vh;
             overflow: hidden;
@@ -394,6 +415,28 @@
             line-height: 1.4;
             color: #e8e8e8;
         }
+
+               .rarity-legendary {
+            color: #B7861D;
+        }
+
+        .rarity-veryrare {
+            color: #D1017B;
+        }
+
+        .rarity-rare {
+            color: #01BFFF;
+        }
+
+        .rarity-uncommon {
+            color: #01BD39;
+        }
+
+        .rarity-common {
+            color: #FFFFFF;
+        }
+
+
     </style>
 </head>
 
@@ -781,8 +824,8 @@
                     for (const item of items) {
                         const $listItem = $('<li>');
                         const $itemAnchor =  $('<a>', {
-                            text: item.name
-                            
+                            text: item.name,
+                            class: `rarity-${item.rarity.toLowerCase()}`
                         });
                         $itemAnchor.data("equipment", item);
                         $itemAnchor.attr('equipment-tooltip', item.name);
@@ -974,19 +1017,19 @@
                 // Set tooltip title color programmatically
                 if (equipment.rarity === 'Legendary') {
                     $tooltip.css('background-image', 'linear-gradient(to bottom, #563E0D99, #1B1A1999, #1B1A1999, #40295199')
-                    $tooltipTitle.css('color', '#B7861D');
+                    $tooltipTitle.attr('class', 'rarity-legendary tooltip-title');
                 } else if (equipment.rarity === 'VeryRare') {
                     $tooltip.css('background-image', 'linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199')
-                    $tooltipTitle.css('color', '#D1017B');
+                    $tooltipTitle.attr('class', 'rarity-veryrare tooltip-title');
                 } else if (equipment.rarity === 'Rare') {
                     $tooltip.css('background-image', 'linear-gradient(to bottom, #00374999, #1B1A1999, #1B1A1999, #40295199')
-                    $tooltipTitle.css('color', '#01BFFF');
+                    $tooltipTitle.attr('class', 'tooltip-title rarity-rare');
                 } else if (equipment.rarity === 'Uncommon') {
                     $tooltip.css('background-image', 'linear-gradient(to bottom, #00491599, #1B1A1999, #1B1A1999, #40295199')
-                    $tooltipTitle.css('color', '#01BD39');
+                    $tooltipTitle.attr('class', 'rarity-uncommon tooltip-title');
                 } else if (equipment.rarity === 'Common') {
                     $tooltip.css('background-image', 'linear-gradient(to bottom, #1B1A1999, #1B1A1999, #1B1A1999, #40295199')
-                    $tooltipTitle.css('color', '#FFFFFF');
+                    $tooltipTitle.attr('class', 'rarity-common tooltip-title');
                 } // You can change this color as needed
 
                 
