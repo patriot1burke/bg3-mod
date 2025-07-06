@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.bg3.forge.model.RootTemplate;
+import org.bg3.forge.scanner.IconCollector;
 import org.bg3.forge.scanner.RootTemplateCollector;
 import org.bg3.forge.scanner.StatsCollector;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,6 +19,38 @@ public class ScannerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println(objectMapper.writeValueAsString(hello));
 
+    }
+
+    //@Test
+    public void testIconExtractor() throws Exception {
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Skills.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Skills.dds",
+        "/home/bburke/projects/bg3-forge/icons/skills"
+        );
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Items.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items.dds",
+        "/home/bburke/projects/bg3-forge/icons/items"
+        );
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Items_2.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items_2.dds",
+        "/home/bburke/projects/bg3-forge/icons/items"
+        );
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Items_3.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items_3.dds",
+        "/home/bburke/projects/bg3-forge/icons/items"
+        );
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Items_4.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items_4.dds",
+        "/home/bburke/projects/bg3-forge/icons/items"
+        );
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Items_5.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items_5.dds",
+        "/home/bburke/projects/bg3-forge/icons/items"
+        );
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Items_6.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items_6.dds",
+        "/home/bburke/projects/bg3-forge/icons/items"
+        );
     }
 
 
