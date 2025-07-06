@@ -10,6 +10,7 @@ public record Equipment(
     String name,
     String description,
     String boostDescription,
+    int armorClass,
     RootTemplate rootTemplate,
     StatsCollector.Stat stat
 ) {

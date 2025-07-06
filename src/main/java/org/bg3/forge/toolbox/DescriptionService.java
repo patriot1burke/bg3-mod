@@ -94,7 +94,18 @@ public class DescriptionService {
             writer.accept("<i>Off Hand Only</i>");
             macros(offHand, writer);
         }
+        macros(stat.getField("Boosts"), writer);
         macros(stat.getField("DefaultBoosts"), writer);
+        macros(stat.getField("BoostsOnEquipMainHand"), writer);
+        return this;
+    }
+
+    public DescriptionService stat(StatsCollector.Stat stat, Consumer<String> writer) {
+        if (stat.type.equals(StatsCollector.Library.ARMOR_TYPE)) {
+            armor(stat, writer);
+        } else if (stat.type.equals(StatsCollector.Library.WEAPON_TYPE)) {
+            weapon(stat, writer);
+        }
         return this;
     }
 

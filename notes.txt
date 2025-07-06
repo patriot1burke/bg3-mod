@@ -1,8 +1,14 @@
 Weapon Boosts Attributes:
-* Boosts - seems to be only UnlockSpell only.  I think this is "if proficient in" in UI
+* Boosts 
 * DefaultBoosts - seems to be only WeaponProperty() and WeaponEnchantment()
 * PassivesOnEquip - Unique stuff to weapon
-* 
+* BoostsOnEquipMainHand
+* if UnlockSpell has "WeaponTypes" keyed off of weapon stat attribute "Weapon Properties" Ammunition|Melee
+
+"Proficiency Group" ->  i.e. "QuarterStaffs;SimpleWeapons"
+"Weapon Group" -> (Simple|Martial)(Melee|Ranged)Weapon
+
+"ArmorType" -> plate, None, cloth, etc.
 
 
 PassiveData

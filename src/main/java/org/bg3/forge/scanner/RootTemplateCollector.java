@@ -72,6 +72,7 @@ public class RootTemplateCollector {
             String mapKey = null;
             String displayName = null;
             String description = null;
+            String parentTemplateId = null;
             List<Element> attributeElements = getAttributeElements(gameObject);
             for (Element attributeElement : attributeElements) {
                 String attribute = attributeElement.getAttribute("id");
@@ -83,9 +84,11 @@ public class RootTemplateCollector {
                     displayName = attributeElement.getAttribute("handle");
                 } else if (attribute.equals("Description")) {
                     description = attributeElement.getAttribute("handle");
+                } else if (attribute.equals("ParentTemplateId")) {
+                    parentTemplateId = attributeElement.getAttribute("value");
                 }
             }
-            templates.put(mapKey, new RootTemplate(stats, mapKey, displayName, description));
+            templates.put(mapKey, new RootTemplate(stats, mapKey, displayName, description, parentTemplateId));
             sum++;
         }
         Log.info("Scanned " + sum + " root templates");

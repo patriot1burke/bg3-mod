@@ -13,7 +13,8 @@ public record EquipmentModel(
                 Rarity rarity,
                 String name,
                 String description,
-                String boostDescription) {
+                String boostDescription,
+                int armorClass) {
 
         public static String toJson(List<EquipmentModel> models) {
                 try {
@@ -23,6 +24,10 @@ public record EquipmentModel(
                 } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                 }
+        }
+
+        public static EquipmentModel from(Equipment equipment) {
+                return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription(), equipment.armorClass());
         }
 
 }

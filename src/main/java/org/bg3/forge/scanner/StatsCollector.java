@@ -64,8 +64,8 @@ public class StatsCollector {
      }
 
     public static class Library extends HashMap<String, Map<String, Stat>> {
-        private static final String ARMOR_TYPE = "Armor";
-        private static final String WEAPON_TYPE = "Weapon";
+        public static final String ARMOR_TYPE = "Armor";
+        public static final String WEAPON_TYPE = "Weapon";
         private Map<String, Stat> byName = new HashMap<>();
 
         public Map<String, Stat> getArmor() {

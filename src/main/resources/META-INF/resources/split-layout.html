@@ -436,6 +436,32 @@
             color: #FFFFFF;
         }
 
+        .tooltip-ac {
+
+        }
+
+        .bg3wiki-ac-value {
+            display: grid;
+            justify-items: start;
+            align-items: start;
+        }
+        .bg3wiki-ac-value > div {
+            grid-column-start: 1;
+            grid-row-start: 1;
+        }
+        .bg3wiki-ac-value .ac-value {
+            text-align: center;
+            width: 40px;
+            align-self: center;
+            padding-bottom: 0.5ch;
+        }
+        
+        .bg3wiki-ac-value .ac-value-comment {
+            grid-column-start: 2;
+            grid-row-start: 1;
+            align-self: center;
+        }
+
 
     </style>
 </head>
@@ -532,6 +558,11 @@
     <div id="tooltip" class="tooltip">
         <button class="tooltip-close" title="Close tooltip (Esc)">×</button>
         <div class="tooltip-title"></div>
+        <div class="bg3wiki-ac-value" style="grid-template-columns: 42px; 1fr">
+            <div><img src="/img/armor_class.png"/ width="45" height="45"></div>
+            <div class="ac-value"></div>
+            <div class="ac-value-comment"></div>
+        </div>
         <div class="tooltip-content"></div>
         <div class="tooltip-footer"></div>
     </div>
@@ -1006,12 +1037,27 @@
             // Function to show tooltip
             function showTooltip(event, equipment) {
                 const $tooltipTitle = $tooltip.find('.tooltip-title');
+                const $tooltipArmorClass = $tooltip.find('.bg3wiki-ac-value');
                 const $tooltipContent = $tooltip.find('.tooltip-content');
                 const $tooltipFooter = $tooltip.find('.tooltip-footer');
 
+                if (equipment.slot === 'Breast') {
+                    ac = equipment.armorClass;
+                    const $armorClassDiv = $tooltipArmorClass.find('.ac-value');
+                    const $armorClassCommentDiv = $tooltipArmorClass.find('.ac-value-comment');
+
+                    $armorClassDiv.html(ac);
+                    $armorClassCommentDiv.html('Armour Class');
+                    $tooltipArmorClass.show();
+                } else {
+                    $tooltipArmorClass.hide();
+                }
+                content = '';
+                content += `${equipment.boostDescription}`;
+
                  // Set content
                 $tooltipTitle.html(equipment.name || '');
-                $tooltipContent.html(equipment.boostDescription || '');
+                $tooltipContent.html(content);
                 $tooltipFooter.html(equipment.description || '');
 
                 // Set tooltip title color programmatically

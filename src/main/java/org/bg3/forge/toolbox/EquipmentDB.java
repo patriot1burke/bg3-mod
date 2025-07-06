@@ -70,59 +70,60 @@ public class EquipmentDB {
         Log.info("Building equipment database");
         Map<String, StatsCollector.Stat> armors = libraryService.library().statsCollector.getArmor();
         for (StatsCollector.Stat armor : armors.values()) {
-            String id = armor.name;
-            EquipmentType type = EquipmentType.valueOf(armor.type);
-            EquipmentSlot slot = EquipmentSlot.fromString(armor.getField("Slot"));
-            if (slot == EquipmentSlot.Unknown) {
-                Log.debug("Unknown slot for " + id);
-                continue;
-            }
-            Rarity rarity = Rarity.fromString(armor.getField("Rarity"));
-            RootTemplate rootTemplate = libraryService.library()
-                    .getRootTemplateCollector().templates.get(armor.getField("RootTemplate"));
-            if (rootTemplate == null) {
-                Log.debug("No root template for " + id);
-                continue;
-            }
-            String displayName = rootTemplate.DisplayName();
-            if (displayName == null || displayName.isEmpty()) {
-                Log.debug("No display name for " + id);
-                continue;
-            }
-            String name = libraryService.library().getLocalizationCollector().getLocalization(displayName);
-            if (name == null) {
-                Log.debug("No name for " + id);
-                continue;
-            }
-            String description = "";
-            if (rootTemplate.Description() != null) {
-                description = libraryService.library().getLocalizationCollector()
-                        .getLocalization(rootTemplate.Description());
-            } else {
-                Log.debug("No description for " + id);
-            }
-            StringBuilder boostDescription = new StringBuilder();
-            try {
-                descriptionService.armor(armor, (desc) -> boostDescription.append("<p>").append(desc).append("</p>"));
-            } catch (Exception e) {
-                throw new RuntimeException("Error processing boosts for " + id, e);
-            }
-            String boost = boostDescription.toString();
-            Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost,
-                    rootTemplate, armor);
-            equipmentDB.put(id, equipment);
-            /*
-             * if (boost.isEmpty()) {
-             * continue;
-             * } else {
-             * Log.info("Adding " + id + " " + equipment.boostDescription());
-             * //equipmentDB.put(id, equipment);
-             * }
-             */
-
+            addEquipment(armor);
         }
         Log.info("Added " + equipmentDB.size() + " to equipment database");
 
+    }
+
+    private void addEquipment(StatsCollector.Stat item) {
+        String id = item.name;
+        EquipmentType type = EquipmentType.valueOf(item.type);
+        EquipmentSlot slot = EquipmentSlot.fromString(item.getField("Slot"));
+        if (slot == EquipmentSlot.Unknown) {
+            Log.debug("Unknown slot for " + id);
+            return;
+        }
+        int armorClass = -1;
+        if (type == EquipmentType.Armor && slot == EquipmentSlot.Breast) {
+            String field = item.getField("ArmorClass");
+            if (field != null && !field.isEmpty()) {
+                armorClass = Integer.parseInt(field);
+            }
+        }
+        Rarity rarity = Rarity.fromString(item.getField("Rarity"));
+        RootTemplate rootTemplate = libraryService.library()
+                .getRootTemplateCollector().templates.get(item.getField("RootTemplate"));
+        if (rootTemplate == null) {
+            Log.debug("No root template for " + id);
+            return;
+        }
+        String displayName = rootTemplate.DisplayName();
+        if (displayName == null || displayName.isEmpty()) {
+            Log.debug("No display name for " + id);
+            return;
+        }
+        String name = libraryService.library().getLocalizationCollector().getLocalization(displayName);
+        if (name == null) {
+            Log.debug("No name for " + id);
+            return;
+        }
+        String description = "";
+        if (rootTemplate.Description() != null) {
+            description = libraryService.library().getLocalizationCollector()
+                    .getLocalization(rootTemplate.Description());
+        } else {
+            Log.debug("No description for " + id);
+        }
+        StringBuilder boostDescription = new StringBuilder();
+        try {
+            descriptionService.stat(item, (desc) -> boostDescription.append("<p>").append(desc).append("</p>"));
+        } catch (Exception e) {
+            throw new RuntimeException("Error processing boosts for " + id, e);
+        }
+        String boost = boostDescription.toString();
+        Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost, armorClass, rootTemplate, item);
+        equipmentDB.put(id, equipment);
     }
 
     private void load() throws Exception {
@@ -162,7 +163,7 @@ public class EquipmentDB {
         if (equipment == null) {
             return null;
         }
-        return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription());
+        return EquipmentModel.from(equipment);
     }
 
     public static record SearchResult(List<EquipmentModel> items, String summary) {}
@@ -197,7 +198,7 @@ public class EquipmentDB {
             return equipmentDB.get(id);
         }).toList();
 
-        return result.stream().map(eq -> new EquipmentModel(eq.id(), eq.type(), eq.slot(), eq.rarity(), eq.name(), eq.description(), eq.boostDescription())).toList();
+        return result.stream().map(EquipmentModel::from).toList();
 
     }
 
