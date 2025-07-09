@@ -9,7 +9,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 public class StaticResources {
     @Route(path = "/static/img/*", methods = Route.HttpMethod.GET)
     public void images(RoutingContext rc) {
-        Log.info("STATIC RESOURCES" + rc.request().path());
+        //Log.info("STATIC RESOURCES" + rc.request().path());
         StaticHandler staticHandler = StaticHandler.create(FileSystemAccess.ROOT, "/home/bburke/projects/baldurs-forge").setCachingEnabled(false).setDirectoryListing(true);
         staticHandler.handle(rc);
     }

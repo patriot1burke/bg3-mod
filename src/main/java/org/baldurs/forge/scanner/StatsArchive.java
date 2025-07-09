@@ -18,6 +18,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
 
 public class StatsArchive {
@@ -30,8 +34,12 @@ public class StatsArchive {
         public String name;
         public String type;
         public String using;
+        @JsonIgnore
         public Library library;
         public Map<String, String> data;
+
+        public Stat() {
+        }
 
         public Stat(String name, String type, Library library, Map<String, String> data) {
             this.name = name;
@@ -63,17 +71,18 @@ public class StatsArchive {
         }
      }
 
-    public static class Library extends HashMap<String, Map<String, Stat>> {
+    public static class Library {
         public static final String ARMOR_TYPE = "Armor";
         public static final String WEAPON_TYPE = "Weapon";
         private Map<String, Stat> byName = new HashMap<>();
+        private Map<String, Map<String, Stat>> byType = new HashMap<>();
 
         public Map<String, Stat> getArmor() {
-            return get(ARMOR_TYPE);
+            return byType.get(ARMOR_TYPE);
         }
 
         public Map<String, Stat> getWeapons() {
-            return get(WEAPON_TYPE);
+            return byType.get(WEAPON_TYPE);
         }
 
         public Stat getByName(String name) {
@@ -81,13 +90,13 @@ public class StatsArchive {
         }
 
         public Set<String> collectAttributeValues(String type, String attribute) {
-            return get(type).values().stream()
+            return byType.get(type).values().stream()
                 .map(entry -> entry.data.get(attribute))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         }
         public Set<String> collectAttributeNames(String type) {
-            return get(type).values().stream()
+            return byType.get(type).values().stream()
                 .map(entry -> entry.data.keySet())
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
@@ -95,8 +104,8 @@ public class StatsArchive {
 
         public Set<String> collectAttributesValues(String attribute) {
             Set<String> attributes = new HashSet<>();
-            for (String type : keySet()) {
-                attributes.addAll(get(type).values().stream()
+            for (String type : byType.keySet()) {
+                attributes.addAll(byType.get(type).values().stream()
                     .map(entry -> entry.data.get(attribute))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet()));
@@ -105,7 +114,7 @@ public class StatsArchive {
         }
 
         public Set<String> commonAttributes(String... types) {
-            Set<String> commonAttributes = Arrays.stream(types).map(type -> get(type).values())
+            Set<String> commonAttributes = Arrays.stream(types).map(type -> byType.get(type).values())
                                              .flatMap(Collection::stream)
                                              .map(entry -> entry.data.keySet())
                                              .flatMap(Collection::stream)
@@ -115,6 +124,21 @@ public class StatsArchive {
                 commonAttributes.retainAll(attributes);
             }
             return commonAttributes;
+        }
+
+        public void save(Path dest) throws Exception {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(dest.toFile(), byName);
+        }
+
+        public void load(Path dest) throws Exception {
+            ObjectMapper objectMapper = new ObjectMapper();
+            byName = objectMapper.readValue(dest.toFile(), new TypeReference<Map<String, Stat>>() {});
+            for (Stat stat : byName.values()) {
+                byType.computeIfAbsent(stat.type, k -> new HashMap<>()).put(stat.name, stat);
+                stat.library = this;
+            }
+            Log.info("Loaded " + byName.size() + " stats");
         }
 
         public Library scan(Path path) throws IOException {
@@ -154,7 +178,7 @@ public class StatsArchive {
                     if (typeMatcher.matches()) {
                         String type = typeMatcher.group(1);
                         currentEntry.get().type = type;
-                        Map<String, Stat> typeEntries = computeIfAbsent(type, k -> new HashMap<>());
+                        Map<String, Stat> typeEntries = byType.computeIfAbsent(type, k -> new HashMap<>());
                         typeEntries.put(currentEntry.get().name, currentEntry.get());
                         byName.put(currentEntry.get().name, currentEntry.get());
                         sum.incrementAndGet();

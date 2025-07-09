@@ -17,6 +17,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import io.quarkus.logging.Log;
 
 public class LocalizationArchive {
@@ -77,6 +81,21 @@ public class LocalizationArchive {
             sum++;
         }
         Log.info("Scanned " + sum + " localizations");
+    }
+
+    public void save(Path dest) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(dest.toFile(), localization);
+    }
+
+    public void load(Path dest) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        localization = objectMapper.readValue(dest.toFile(), 
+            new TypeReference<Map<String, Map<Integer, String>>>() {});
+        int totalLocalizations = localization.values().stream()
+            .mapToInt(Map::size)
+            .sum();
+        Log.info("Loaded " + totalLocalizations + " localizations");
     }
     
 }

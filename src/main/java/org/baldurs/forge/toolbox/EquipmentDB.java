@@ -102,7 +102,7 @@ public class EquipmentDB {
             Log.debug("No root template for " + id);
             return;
         }
-        String displayName = rootTemplate.DisplayName();
+        String displayName = rootTemplate.DisplayName;
         if (displayName == null || displayName.isEmpty()) {
             Log.debug("No display name for " + id);
             return;
@@ -113,9 +113,9 @@ public class EquipmentDB {
             return;
         }
         String description = "";
-        if (rootTemplate.Description() != null) {
+        if (rootTemplate.Description != null) {
             description = libraryService.library().getLocalizationCollector()
-                    .getLocalization(rootTemplate.Description());
+                    .getLocalization(rootTemplate.Description);
         } else {
             Log.debug("No description for " + id);
         }

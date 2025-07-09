@@ -1,5 +1,6 @@
 package org.baldurs.forge.toolbox;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,17 +15,23 @@ import org.baldurs.forge.model.StatModel;
 import org.baldurs.forge.scanner.BaldursArchive;
 import org.baldurs.forge.scanner.RootTemplate;
 import org.baldurs.forge.scanner.StatsArchive;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class LibraryService {
     private BaldursArchive library = new BaldursArchive();
     private boolean initialized = false;
+
+    @Inject
+    @ConfigProperty(name = "baldurs.forge.scanner.cache.root.path", defaultValue = "/home/bburke/projects/baldurs-forge/cache")
+    private String rootPath;
 
     @PostConstruct
     public void init() {
@@ -36,23 +43,44 @@ public class LibraryService {
             return;
         initialized = true;
         try {
-            Log.info("Starting Bg3DB");
+            Log.info("Loading game data...");
+            Path root = Path.of(rootPath);
+            if (!Files.exists(root)) {
+                Files.createDirectories(root);
+            }
 
-            library.getStatsCollector()
-                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data"))
-                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data"))
-                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data"))
-                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/Stats/Generated/Data"))
+            Path statsPath = root.resolve("stats.json");
+            if (Files.exists(statsPath)) {
+                library.getStatsCollector().load(statsPath);
+            } else {
+                library.getStatsCollector()
+                        .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data"))
+                        .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data"))
+                        .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data"))
+                        .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/Stats/Generated/Data"))
+                        .save(statsPath);
+            }
 
-            ;
+            Path rootTemplatesPath = root.resolve("root-templates.json");
+            if (Files.exists(rootTemplatesPath)) {
+                library.getRootTemplateCollector().load(rootTemplatesPath);
+            } else {
+                library.getRootTemplateCollector()
+                        .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"))
+                        .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/RootTemplates/_merged.lsx"))
+                        .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"))
+                        .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/RootTemplates/_merged.lsx"))
+                        .save(rootTemplatesPath);
+            }
 
-            library.getRootTemplateCollector()
-                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"))
-                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/RootTemplates/_merged.lsx"))
-                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"))
-                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/RootTemplates/_merged.lsx"));
-            library.getLocalizationCollector()
-                    .scan(Path.of("/mnt/c/Users/patri/mods/bg3-localization/Localization/English/english.xml"));
+            Path localizationPath = root.resolve("localization.json");
+            if (Files.exists(localizationPath)) {
+                library.getLocalizationCollector().load(localizationPath);
+            } else {
+                library.getLocalizationCollector()
+                        .scan(Path.of("/mnt/c/Users/patri/mods/bg3-localization/Localization/English/english.xml"));
+                library.getLocalizationCollector().save(localizationPath);
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -67,7 +95,7 @@ public class LibraryService {
     public RootTemplate findRootTemplateByStatName(String statName) {
         Log.infof("Finding root template for stat: %s", statName);
         for (RootTemplate rootTemplate : library.getRootTemplateCollector().templates.values()) {
-            if (statName.equals(rootTemplate.Stats())) {
+            if (statName.equals(rootTemplate.Stats)) {
                 return rootTemplate;
             }
         }

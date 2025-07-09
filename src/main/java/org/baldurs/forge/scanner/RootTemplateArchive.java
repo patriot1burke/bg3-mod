@@ -17,6 +17,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
 
 public class RootTemplateArchive {
@@ -98,5 +101,18 @@ public class RootTemplateArchive {
         return this;
     }
 
+    public void save(Path dest) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(dest.toFile(), templates);
+    }
 
-}
+    public void load(Path dest) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        templates = objectMapper.readValue(dest.toFile(), new TypeReference<Map<String, RootTemplate>>() {});
+        for (RootTemplate template : templates.values()) {
+            template.archive = this;
+        }
+        Log.info("Loaded " + templates.size() + " root templates");
+    }
+
+ }
