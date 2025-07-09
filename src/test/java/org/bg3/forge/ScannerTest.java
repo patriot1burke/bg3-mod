@@ -3,10 +3,10 @@ package org.bg3.forge;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.bg3.forge.model.RootTemplate;
-import org.bg3.forge.scanner.IconCollector;
-import org.bg3.forge.scanner.RootTemplateCollector;
-import org.bg3.forge.scanner.StatsCollector;
+import org.baldurs.forge.scanner.IconCollector;
+import org.baldurs.forge.scanner.RootTemplate;
+import org.baldurs.forge.scanner.RootTemplateArchive;
+import org.baldurs.forge.scanner.StatsArchive;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +56,7 @@ public class ScannerTest {
 
     //@Test
     public void testEntryScanner() throws IOException {
-        StatsCollector.Library library = StatsCollector.scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Armor.txt"))
+        StatsArchive.Library library = StatsArchive.scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Armor.txt"))
         .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/Stats/Generated/Data/Armor.txt"))
         .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data/Armor.txt"))
         .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/Stats/Generated/Data/Weapon.txt"))
@@ -69,7 +69,7 @@ public class ScannerTest {
 
     //@Test
     public void testRootTemplateScanner() throws Exception {
-        RootTemplateCollector scanner = new RootTemplateCollector();
+        RootTemplateArchive scanner = new RootTemplateArchive();
         scanner.scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
         for (RootTemplate template : scanner.templates.values()) {
             System.out.println(template);

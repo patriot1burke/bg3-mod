@@ -317,11 +317,11 @@
             position: absolute;
             background-color: #2a2d30;
             background-image: linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199);
-            border: 2px solid #BCAE79;
+            border: 1px solid #BCAE79;
             border-radius: 8px;
             padding: 12px;
-            max-width: 300px;
-            min-width: 200px;
+            max-width: 450px;
+            min-width: 450px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             font-size: 14px;
@@ -330,6 +330,8 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s ease-in-out;
+            overflow: visible;
+            font-family: Times New Roman, serif;
         }
 
         .tooltip.pinned {
@@ -366,18 +368,21 @@
         }
 
         .tooltip-title {
-            font-weight: bold;
+            /*font-weight: bold;*/
             color: #BCAE79;
-            margin-bottom: 8px;
-            font-size: 16px;
+            margin-bottom: 100px;
+            font-size: 20px;
         }
 
         .tooltip-content {
             margin-bottom: 8px;
+            font-size:  16px;
+            background-color: #3a3a3a;
         }
 
         .tooltip-footer {
             font-size: 12px;
+            font-style: italic;
             color: #aaa;
             border-top: 1px solid #444;
             padding-top: 8px;
@@ -436,30 +441,43 @@
             color: #FFFFFF;
         }
 
-        .tooltip-ac {
-
-        }
-
-        .bg3wiki-ac-value {
+        .tooltip-ac-value {
             display: grid;
             justify-items: start;
             align-items: start;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #444;
         }
-        .bg3wiki-ac-value > div {
+        .tooltip-ac-value > div {
             grid-column-start: 1;
             grid-row-start: 1;
         }
-        .bg3wiki-ac-value .ac-value {
+        .tooltip-ac-value .ac-value {
+            font-size: 16px;
             text-align: center;
-            width: 40px;
+            width: 45px;
             align-self: center;
-            padding-bottom: 0.5ch;
+            padding-bottom: 1ch;
         }
         
-        .bg3wiki-ac-value .ac-value-comment {
+        .tooltip-ac-value .ac-value-comment {
+            font-size: 16px;
+            padding-left: 1ch;
+            padding-bottom: 1ch;
             grid-column-start: 2;
             grid-row-start: 1;
             align-self: center;
+        }
+
+        .tooltip-item-image {
+            position: absolute;
+            top: -9px;
+            right: -9px;
+            width: 144px;
+            height: 144px;
+            z-index: 1001;
+            pointer-events: none;
+            background-color: transparent;
         }
 
 
@@ -469,7 +487,7 @@
 <body>
     <!-- Banner across the top -->
     <div class="banner">
-        <img src="/favicon.ico" alt="Baldur's Gate 3 Logo" data-tooltip='{"title": "Item Details", "content": "This is a powerful weapon with +5 attack bonus", "footer": "Rare item"}'>
+        <img src="/favicon.ico" alt="Baldur's Gate 3 Logo">
         Baldur's Forge Assistant
     </div>
 
@@ -499,24 +517,7 @@
                     </div>
                 </div>
                         
-                <!--
 
-                <div class="panel-title">Left Panel</div>
-                <div class="panel-content">
-                    <div class="sample-content">
-                        <h3>Left Panel Content</h3>
-                        <p>This panel takes up 50% of the window width. You can put any content here.</p>
-                    </div>
-                    <div class="sample-content">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-                            labore et dolore magna aliqua.</p>
-                    </div>
-                    <div class="sample-content">
-                        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                            commodo consequat.</p>
-                    </div>
-                </div>
-            -->
             </div>
 
             <!-- Right Container (50% width, split vertically) -->
@@ -526,14 +527,9 @@
                     <div class="panel-title">Top Right Panel</div>
                     <div class="panel-content">
                         <div class="sample-content">
-                            <h3>Top Right Content</h3>
-                            <p>This panel takes up the top 50% of the right side.</p>
+                            <img src="/static/img/icons/items-tooltip/Item_MAG_Giantslayer_Greatsword.144.png"/>
                         </div>
-                        <div class="sample-content">
-                            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                                nulla pariatur.</p>
-                        </div>
-                    </div>
+                     </div>
                 </div>
 
                 <!-- Bottom Right Panel (50% height of right side) -->
@@ -557,8 +553,9 @@
     <!-- Tooltip container -->
     <div id="tooltip" class="tooltip">
         <button class="tooltip-close" title="Close tooltip (Esc)">×</button>
+        <img class="tooltip-item-image" id="tooltip-item-image" src="/static/img/icons/items-tooltip/Item_MAG_Giantslayer_Greatsword.144.png" alt="Item Image">
         <div class="tooltip-title"></div>
-        <div class="bg3wiki-ac-value" style="grid-template-columns: 42px; 1fr">
+        <div class="tooltip-ac-value" style="grid-template-columns: 42px 1fr">
             <div><img src="/img/armor_class.png"/ width="45" height="45"></div>
             <div class="ac-value"></div>
             <div class="ac-value-comment"></div>
@@ -840,37 +837,66 @@
                 updateClearButtonVisibility();
             }
 
+            function searchAndSummary(data) {
+                const items = data.response.items;
+                const $resultDev = $('<div>', {
+                    class: `message assistant-message`
+                });
+      
+                const $list = $('<ul>', { class: 'tool-results-list' });
+                for (const item of items) {
+                    const $listItem = $('<li>');
+                    const $itemAnchor =  $('<a>', {
+                        text: item.name,
+                        class: `rarity-${item.rarity.toLowerCase()}`
+                    });
+                    $itemAnchor.data("equipment", item);
+                    $itemAnchor.attr('equipment-tooltip', item.name);
+                    $listItem.append($itemAnchor);
+                    $list.append($listItem);
+                }
+                const $paragraph = $('<p>');
+                $paragraph.append($list);
+                $resultDev.append($paragraph);
+
+                const $summaryDiv = $('<div>');                    
+                $summaryDiv.html(data.response.summary);
+                $resultDev.append($summaryDiv);
+                $chatContainer.append($resultDev);
+            }
+
+            function findByName(data) {
+                const equipment = data.response;
+                console.log(equipment);
+                const $resultDev = $('<div>', {
+                    class: `message assistant-message`
+                });
+               const $equipmentPanel = $tooltip.clone();
+               $equipmentPanel.css('position', 'relative');
+               //const $tooltipImage = $equipmentPanel.find('.tooltip-item-image');
+               //$tooltipImage.css('position', 'relative');
+               //$tooltipImage.css('top', '50px');
+               //$tooltipImage.css('right', '-100px');
+               showEquipmentPanel($equipmentPanel, equipment);
+               $resultDev.append($equipmentPanel);
+               $equipmentPanel.addClass('show');
+               $chatContainer.append($resultDev);
+            }
+
                        // Function to add JSON data as a table
             function addToolMessage(jsonData) {
         
                 try {
                     const data = JSON.parse(jsonData);
-
-                    const items = data[0].response.items;
-                    const $resultDev = $('<div>', {
-                        class: `message assistant-message`
-                    });
-      
-                    const $list = $('<ul>', { class: 'tool-results-list' });
-                    for (const item of items) {
-                        const $listItem = $('<li>');
-                        const $itemAnchor =  $('<a>', {
-                            text: item.name,
-                            class: `rarity-${item.rarity.toLowerCase()}`
-                        });
-                        $itemAnchor.data("equipment", item);
-                        $itemAnchor.attr('equipment-tooltip', item.name);
-                        $listItem.append($itemAnchor);
-                        $list.append($listItem);
+                    for (const toolResult of data) {
+                        if (toolResult.tool === 'searchAndSummary') {
+                            searchAndSummary(toolResult);
+                        } else if (toolResult.tool === 'findByName') {
+                            findByName(toolResult);
+                        } else {
+                            addDataMessage(toolResult);
+                        }
                     }
-                    const $paragraph = $('<p>');
-                    $paragraph.append($list);
-                    $resultDev.append($paragraph);
-
-                    const $summaryDiv = $('<div>');                    
-                    $summaryDiv.html(data[0].response.summary);
-                    $resultDev.append($summaryDiv);
-                    $chatContainer.append($resultDev);
                 } catch (e) {
                     // If parsing fails, just show the raw response
                     const $messageDiv = $('<div>', { class: 'message data-message' });
@@ -1034,20 +1060,22 @@
             let tooltipTimeout;
             let isTooltipPinned = false;
 
-            // Function to show tooltip
-            function showTooltip(event, equipment) {
-                const $tooltipTitle = $tooltip.find('.tooltip-title');
-                const $tooltipArmorClass = $tooltip.find('.bg3wiki-ac-value');
-                const $tooltipContent = $tooltip.find('.tooltip-content');
-                const $tooltipFooter = $tooltip.find('.tooltip-footer');
+            function showEquipmentPanel(tooltip, equipment) {
+                const $tooltipTitle = tooltip.find('.tooltip-title');
+                const $tooltipArmorClass = tooltip.find('.tooltip-ac-value');
+                const $tooltipContent = tooltip.find('.tooltip-content');
+                const $tooltipFooter = tooltip.find('.tooltip-footer');
+                const $tooltipImage = tooltip.find('.tooltip-item-image');
+
+
 
                 if (equipment.slot === 'Breast') {
                     ac = equipment.armorClass;
                     const $armorClassDiv = $tooltipArmorClass.find('.ac-value');
                     const $armorClassCommentDiv = $tooltipArmorClass.find('.ac-value-comment');
 
-                    $armorClassDiv.html(ac);
-                    $armorClassCommentDiv.html('Armour Class');
+                    $armorClassDiv.html(`<b>${ac}</b>`);
+                    $armorClassCommentDiv.html('<b>Armour Class</b>');
                     $tooltipArmorClass.show();
                 } else {
                     $tooltipArmorClass.hide();
@@ -1062,23 +1090,28 @@
 
                 // Set tooltip title color programmatically
                 if (equipment.rarity === 'Legendary') {
-                    $tooltip.css('background-image', 'linear-gradient(to bottom, #563E0D99, #1B1A1999, #1B1A1999, #40295199')
+                    tooltip.css('background-image', 'linear-gradient(to bottom, #563E0D99, #1B1A1999, #1B1A1999, #40295199')
                     $tooltipTitle.attr('class', 'rarity-legendary tooltip-title');
                 } else if (equipment.rarity === 'VeryRare') {
-                    $tooltip.css('background-image', 'linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199')
+                    tooltip.css('background-image', 'linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199')
                     $tooltipTitle.attr('class', 'rarity-veryrare tooltip-title');
                 } else if (equipment.rarity === 'Rare') {
-                    $tooltip.css('background-image', 'linear-gradient(to bottom, #00374999, #1B1A1999, #1B1A1999, #40295199')
+                    tooltip.css('background-image', 'linear-gradient(to bottom, #00374999, #1B1A1999, #1B1A1999, #40295199')
                     $tooltipTitle.attr('class', 'tooltip-title rarity-rare');
                 } else if (equipment.rarity === 'Uncommon') {
-                    $tooltip.css('background-image', 'linear-gradient(to bottom, #00491599, #1B1A1999, #1B1A1999, #40295199')
+                    tooltip.css('background-image', 'linear-gradient(to bottom, #00491599, #1B1A1999, #1B1A1999, #40295199')
                     $tooltipTitle.attr('class', 'rarity-uncommon tooltip-title');
                 } else if (equipment.rarity === 'Common') {
-                    $tooltip.css('background-image', 'linear-gradient(to bottom, #1B1A1999, #1B1A1999, #1B1A1999, #40295199')
+                    tooltip.css('background-image', 'linear-gradient(to bottom, #1B1A1999, #1B1A1999, #1B1A1999, #40295199')
                     $tooltipTitle.attr('class', 'rarity-common tooltip-title');
                 } // You can change this color as needed
 
-                
+
+            }
+
+            // Function to show tooltip
+            function showTooltip(event, equipment) {
+                showEquipmentPanel($tooltip, equipment);
 
                 // Hide title/footer if empty
                 //$tooltipTitle.toggle(!!title);
@@ -1183,27 +1216,6 @@
                 }
             });
 
-            // Example: Add tooltip to some sample links (you can remove this)
-            function addSampleTooltips() {
-                // Add tooltips to some sample content
-                $('.sample-content h3').each(function() {
-                    $(this).attr('data-tooltip', {
-                        title: 'Information',
-                        content: 'This is a sample tooltip for the ' + $(this).text() + ' section.',
-                        footer: 'Hover for more details'
-                    });
-                });
-
-                // Add tooltip to the banner
-                $('.banner').attr('data-tooltip', {
-                    title: 'Baldur\'s Forge Assistant',
-                    content: 'Your AI assistant for Baldur\'s Gate 3 data and information.',
-                    footer: 'Powered by advanced AI'
-                });
-            }
-
-            // Initialize sample tooltips
-            //addSampleTooltips();
         });
 </script>
 </body>
