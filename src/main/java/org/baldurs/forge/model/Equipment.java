@@ -11,6 +11,7 @@ public record Equipment(
     String name,
     String description,
     String boostDescription,
+    String icon,
     int armorClass,
     RootTemplate rootTemplate,
     StatsArchive.Stat stat

@@ -44,14 +44,12 @@ public class LibraryService {
                     .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/Stats/Generated/Data"))
                     .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/Stats/Generated/Data"))
 
-
             ;
 
             library.getRootTemplateCollector()
-                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"));
-                    library.getRootTemplateCollector()
-                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"));
-                    library.getRootTemplateCollector()
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/Shared/RootTemplates/_merged.lsx"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/shared/Public/SharedDev/RootTemplates/_merged.lsx"))
+                    .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/GustavDev/RootTemplates/_merged.lsx"))
                     .scan(Path.of("/mnt/c/Users/patri/mods/gustav/Public/Gustav/RootTemplates/_merged.lsx"));
             library.getLocalizationCollector()
                     .scan(Path.of("/mnt/c/Users/patri/mods/bg3-localization/Localization/English/english.xml"));
@@ -77,7 +75,7 @@ public class LibraryService {
     }
 
     @Tool("Get or find or show a stat by name")
-    public StatModel getStatByName(String name, @P(value ="Add parent data?", required = false) boolean parentData) {
+    public StatModel getStatByName(String name, @P(value = "Add parent data?", required = false) boolean parentData) {
         StatsArchive.Stat stat = library.statsCollector.getByName(name);
         if (stat == null) {
             return null;

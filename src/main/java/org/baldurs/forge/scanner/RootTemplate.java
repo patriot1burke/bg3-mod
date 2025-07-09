@@ -9,7 +9,11 @@ public record RootTemplate(String Stats, String MapKey, String DisplayName, Stri
         if (ParentTemplateId == null) {
             return null;
         }
-        return archive.templates.get(ParentTemplateId).resolveIcon();
+        RootTemplate rootTemplate = archive.templates.get(ParentTemplateId);
+        if (rootTemplate == null) {
+            return null;
+        }
+        return rootTemplate.resolveIcon();
     }
 
 }

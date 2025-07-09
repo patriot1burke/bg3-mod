@@ -867,20 +867,24 @@
 
             function findByName(data) {
                 const equipment = data.response;
+                if (!equipment) {
+                    const $messageDiv = $('<div>', { class: 'message data-message' });
+                    const $notFoundDiv = $('<div>');
+                    $notFoundDiv.html('No equipment found');
+                    $messageDiv.append($notFoundDiv);
+                    $chatContainer.append($messageDiv);
+                    return;
+                }
                 console.log(equipment);
                 const $resultDev = $('<div>', {
                     class: `message assistant-message`
                 });
-               const $equipmentPanel = $tooltip.clone();
-               $equipmentPanel.css('position', 'relative');
-               //const $tooltipImage = $equipmentPanel.find('.tooltip-item-image');
-               //$tooltipImage.css('position', 'relative');
-               //$tooltipImage.css('top', '50px');
-               //$tooltipImage.css('right', '-100px');
-               showEquipmentPanel($equipmentPanel, equipment);
-               $resultDev.append($equipmentPanel);
-               $equipmentPanel.addClass('show');
-               $chatContainer.append($resultDev);
+                const $equipmentPanel = $baseEquipmentPanel.clone();
+                $equipmentPanel.css('position', 'relative');
+                showEquipmentPanel($equipmentPanel, equipment);
+                $resultDev.append($equipmentPanel);
+                $equipmentPanel.addClass('show');
+                $chatContainer.append($resultDev);
             }
 
                        // Function to add JSON data as a table
@@ -1059,6 +1063,7 @@
             const $tooltip = $('#tooltip');
             let tooltipTimeout;
             let isTooltipPinned = false;
+            const $baseEquipmentPanel = $tooltip.clone();
 
             function showEquipmentPanel(tooltip, equipment) {
                 const $tooltipTitle = tooltip.find('.tooltip-title');
@@ -1067,7 +1072,11 @@
                 const $tooltipFooter = tooltip.find('.tooltip-footer');
                 const $tooltipImage = tooltip.find('.tooltip-item-image');
 
-
+                if (equipment.icon) {
+                    $tooltipImage.attr('src', '/static/img/icons/items-tooltip/' + equipment.icon + '.144.png');
+                } else {
+                    $tooltipImage.hide();
+                }
 
                 if (equipment.slot === 'Breast') {
                     ac = equipment.armorClass;

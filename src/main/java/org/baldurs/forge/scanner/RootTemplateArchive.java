@@ -64,7 +64,7 @@ public class RootTemplateArchive {
 
     public Map<String, RootTemplate> templates = new HashMap<>();
 
-    public void scan(Path xmlPath) throws Exception {
+    public RootTemplateArchive scan(Path xmlPath) throws Exception {
         List<Element> gameObjects = getGameObjectsAsElements(xmlPath);
         int sum = 0;
         for (Element gameObject : gameObjects) {
@@ -95,6 +95,7 @@ public class RootTemplateArchive {
             sum++;
         }
         Log.info("Scanned " + sum + " root templates");
+        return this;
     }
 
 

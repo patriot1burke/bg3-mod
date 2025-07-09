@@ -14,7 +14,8 @@ public record EquipmentModel(
                 String name,
                 String description,
                 String boostDescription,
-                int armorClass) {
+                int armorClass,
+                String icon) {
 
         public static String toJson(List<EquipmentModel> models) {
                 try {
@@ -27,7 +28,7 @@ public record EquipmentModel(
         }
 
         public static EquipmentModel from(Equipment equipment) {
-                return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription(), equipment.armorClass());
+                return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription(), equipment.armorClass(), equipment.icon());
         }
 
 }

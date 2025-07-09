@@ -72,6 +72,10 @@ public class EquipmentDB {
         for (StatsArchive.Stat armor : armors.values()) {
             addEquipment(armor);
         }
+        Map<String, StatsArchive.Stat> weapons = libraryService.library().statsCollector.getWeapons();
+        for (StatsArchive.Stat weapon : weapons.values()) {
+            addEquipment(weapon);
+        }
         Log.info("Added " + equipmentDB.size() + " to equipment database");
 
     }
@@ -122,7 +126,8 @@ public class EquipmentDB {
             throw new RuntimeException("Error processing boosts for " + id, e);
         }
         String boost = boostDescription.toString();
-        Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost, armorClass, rootTemplate, item);
+        String icon = rootTemplate.resolveIcon();
+        Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost, icon, armorClass, rootTemplate, item);
         equipmentDB.put(id, equipment);
     }
 
