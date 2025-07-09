@@ -371,12 +371,13 @@
             /*font-weight: bold;*/
             color: #BCAE79;
             margin-bottom: 100px;
-            font-size: 20px;
+            font-size: 26px;
         }
 
         .tooltip-content {
             margin-bottom: 8px;
-            font-size:  16px;
+            color: #f5ebc8;
+            font-size:  18px;
             background-color: #3a3a3a;
         }
 
@@ -478,6 +479,15 @@
             z-index: 1001;
             pointer-events: none;
             background-color: transparent;
+        }
+
+        .spell-icon {
+            width: 32px;
+            height: 32px;
+        }
+        .boost-name {
+            font-weight: bold;
+            color: #f5ebb8;
         }
 
 
@@ -807,34 +817,38 @@
                 $tableContainer.append($table);
                 $container.append($tableContainer);
             }
-        
-            // Function to add JSON data as a table
-            function addDataMessage(jsonData) {
+
+            function addJsonMessage(data) {
                 const $messageDiv = $('<div>', { class: 'message data-message' });
         
-                try {
-                    const data = JSON.parse(jsonData);
-        
-                    if (Array.isArray(data)) {
-                        const $container = $('<div>');
-                        createArrayTable(data, $container);
-                        $messageDiv.append($container);
-                    } else if (typeof data === 'object' && data !== null) {
-                        const $container = $('<div>');
-                        createObjectTable(data, $container);
-                        $messageDiv.append($container);
-                    } else {
-                        // Not an array or object
-                        $messageDiv.text(jsonData);
-                    }
-                } catch (e) {
-                    // If parsing fails, just show the raw response
+                if (Array.isArray(data)) {
+                    const $container = $('<div>');
+                    createArrayTable(data, $container);
+                    $messageDiv.append($container);
+                } else if (typeof data === 'object' && data !== null) {
+                    const $container = $('<div>');
+                    createObjectTable(data, $container);
+                    $messageDiv.append($container);
+                } else {
+                    // Not an array or object
                     $messageDiv.text(jsonData);
                 }
         
                 $chatContainer.append($messageDiv);
                 $chatContainer.scrollTop($chatContainer[0].scrollHeight);
-                updateClearButtonVisibility();
+                updateClearButtonVisibility();                
+            }
+        
+            // Function to add JSON data as a table
+            function addDataMessage(jsonData) {
+        
+                try {
+                    const data = JSON.parse(jsonData);
+                    addJsonMessage(data);
+                } catch (e) {
+                    // If parsing fails, just show the raw response
+                    addMessage(jsonData);
+                }
             }
 
             function searchAndSummary(data) {
@@ -898,7 +912,8 @@
                         } else if (toolResult.tool === 'findByName') {
                             findByName(toolResult);
                         } else {
-                            addDataMessage(toolResult);
+                            console.log('Unknown tool: ' + toolResult.tool);
+                            addJsonMessage(toolResult);
                         }
                     }
                 } catch (e) {
@@ -1091,6 +1106,8 @@
                 }
                 content = '';
                 content += `${equipment.boostDescription}`;
+                content = content.replaceAll('__skill_icon_path__', '/static/img/icons/skills/');
+                content = content.replaceAll('__skill_icon_suffix__', '.png');
 
                  // Set content
                 $tooltipTitle.html(equipment.name || '');

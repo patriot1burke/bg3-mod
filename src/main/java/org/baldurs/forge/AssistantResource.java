@@ -8,6 +8,7 @@ import org.baldurs.forge.model.Equipment;
 import org.baldurs.forge.model.EquipmentModel;
 import org.baldurs.forge.nli.ToolBoxNLI;
 import org.baldurs.forge.nli.ToolBoxNLIInvoker;
+import org.baldurs.forge.toolbox.BoostService;
 import org.baldurs.forge.toolbox.EquipmentDB;
 import org.baldurs.forge.toolbox.LibraryService;
 import org.jboss.logging.Logger;
@@ -40,7 +41,7 @@ public class AssistantResource {
 	EquipmentDB equipmentDB;
 
 	@Inject
-	@ToolBoxNLI({EquipmentDB.class, LibraryService.class})
+	@ToolBoxNLI({EquipmentDB.class, LibraryService.class, BoostService.class})
 	ToolBoxNLIInvoker assistantCommandService;
 
 	/**

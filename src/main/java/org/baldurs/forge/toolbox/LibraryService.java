@@ -139,7 +139,7 @@ public class LibraryService {
 
     private List<String> getFunctions(Map<String, Set<String>> boosts, Set<String> macros) {
         for (String macro : macros) {
-            String[] tokens = MacroDescriptionService.splitMacro(macro);
+            String[] tokens = MacroService.splitMacro(macro);
             for (String token : tokens) {
                 try {
                     String expression = token.trim();

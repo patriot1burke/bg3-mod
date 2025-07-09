@@ -18,6 +18,7 @@ import org.baldurs.forge.model.Rarity;
 import org.baldurs.forge.scanner.RootTemplate;
 import org.baldurs.forge.scanner.RootTemplateArchive;
 import org.baldurs.forge.scanner.StatsArchive;
+import org.baldurs.forge.toolbox.BoostService.BoostWriter;
 import org.baldurs.forge.util.FilterExpression;
 
 import dev.langchain4j.agent.tool.Tool;
@@ -45,7 +46,7 @@ public class EquipmentDB {
     LibraryService libraryService;
 
     @Inject
-    DescriptionService descriptionService;
+    BoostService boostService;
 
     @Inject
     EmbeddingStore<TextSegment> embeddingStore;
@@ -119,13 +120,14 @@ public class EquipmentDB {
         } else {
             Log.debug("No description for " + id);
         }
-        StringBuilder boostDescription = new StringBuilder();
+        BoostWriter boostWriter = boostService.html();
         try {
-            descriptionService.stat(item, (desc) -> boostDescription.append("<p>").append(desc).append("</p>"));
+            boostService.stat(item, boostWriter);
         } catch (Exception e) {
             throw new RuntimeException("Error processing boosts for " + id, e);
         }
-        String boost = boostDescription.toString();
+        String boost = boostWriter.toString();
+        //Log.infof("Boosts for %s: %s", id, boost);
         String icon = rootTemplate.resolveIcon();
         Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost, icon, armorClass, rootTemplate, item);
         equipmentDB.put(id, equipment);
@@ -146,13 +148,17 @@ public class EquipmentDB {
 
         List<Document> docs = new ArrayList<>();
         for (Equipment item : equipmentDB.values()) {
+            BoostWriter boostWriter = boostService.text();
+            StatsArchive.Stat stat = libraryService.library().statsCollector.getByName(item.id());
+            boostService.stat(stat, boostWriter);
+            String boost = boostWriter.toString();
             Metadata metadata = Metadata.from(Map.of("id", item.id(), "type", item.type().name(), "slot",
                     item.slot().name(), "rarity", item.rarity().name()));
             String content = "Name: " + item.name() + "\n" +
                     "Type: " + item.type() + "\n" +
                     "Slot: " + item.slot() + "\n" +
                     "Rarity: " + item.rarity() + "\n" +
-                    "Boosts: " + item.boostDescription();
+                    "Boosts: " + boost;
             //Log.info("\nid: " + item.id() + "\n" + content);
             Document document = Document.from(content, metadata);
             docs.add(document);

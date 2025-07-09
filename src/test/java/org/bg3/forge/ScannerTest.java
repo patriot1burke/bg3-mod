@@ -23,6 +23,11 @@ public class ScannerTest {
 
     //@Test
     public void testIconExtractor() throws Exception {
+        /*
+        IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/SharedDev/GUI/Icons_Skills.lsx",
+        "/mnt/c/Users/patri/mods/icons/Public/SharedDev/Assets/Textures/Icons/Icons_Skills.dds",
+        "/home/bburke/projects/bg3-forge/icons/skills"
+        );
         IconCollector.extractIcons("/mnt/c/Users/patri/mods/shared/Public/Shared/GUI/Icons_Skills.lsx",
         "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Skills.dds",
         "/home/bburke/projects/bg3-forge/icons/skills"
@@ -51,6 +56,7 @@ public class ScannerTest {
         "/mnt/c/Users/patri/mods/icons/Public/Shared/Assets/Textures/Icons/Icons_Items_6.dds",
         "/home/bburke/projects/bg3-forge/icons/items"
         );
+        */
     }
 
 
