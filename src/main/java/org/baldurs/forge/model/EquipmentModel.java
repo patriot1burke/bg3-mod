@@ -1,6 +1,7 @@
 package org.baldurs.forge.model;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,9 @@ public record EquipmentModel(
                 String description,
                 String boostDescription,
                 int armorClass,
+                String weaponType,
+                String armorType,
+                Set<String> weaponProperties,
                 String icon) {
 
         public static String toJson(List<EquipmentModel> models) {
@@ -28,7 +32,7 @@ public record EquipmentModel(
         }
 
         public static EquipmentModel from(Equipment equipment) {
-                return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription(), equipment.armorClass(), equipment.icon());
+                return new EquipmentModel(equipment.id(), equipment.type(), equipment.slot(), equipment.rarity(), equipment.name(), equipment.description(), equipment.boostDescription(), equipment.armorClass(), equipment.weaponType(), equipment.armorType(), equipment.weaponProperties(), equipment.icon());
         }
 
 }

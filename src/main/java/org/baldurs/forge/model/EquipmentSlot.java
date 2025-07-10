@@ -10,6 +10,7 @@ public enum EquipmentSlot {
     Amulet,
     Cloak,
     Melee,
+    Offhand,
     Ranged;
 
     public static EquipmentSlot fromString(String string) {
@@ -21,7 +22,7 @@ public enum EquipmentSlot {
         } else if (string.equals("Ranged Main Weapon")) {
             return Ranged;
         } else if (string.equals("Melee Offhand Weapon")) {
-            return Melee;
+            return Offhand;
         }
         try {
             return EquipmentSlot.valueOf(string);

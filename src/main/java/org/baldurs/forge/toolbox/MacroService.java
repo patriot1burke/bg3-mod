@@ -359,15 +359,15 @@ public class MacroService {
         transformers.put("UnlockSpell", (macro, writer) -> {
             Stat stat = bg3DB.library().statsCollector.getByName(macro.args[0]);
             if (stat == null) {
-                writer.write("UnlockSpell (no stat)" + macro.args[0]);
+                writer.write("<i>UnlockSpell (no stat)" + macro.args[0] + "</i>");
                 return;
             }
             String displayName = descriptionService.statDisplayName(stat);
             if (displayName == null) {
-                writer.write("UnlockSpell (no display name)" + macro.args[0]);
+                writer.write("<i>UnlockSpell (no display name)" + macro.args[0] + "</i>");
                 return;
             }
-            writer.writeSpell(stat);
+            writer.unlockSpell(stat);
         });
         transformers.put("WeaponDamage", (macro, writer) -> {
             String description = "Additional " + macro.args[0];

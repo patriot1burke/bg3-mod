@@ -319,7 +319,7 @@
             background-image: linear-gradient(to bottom, #54003299, #1B1A1999, #1B1A1999, #40295199);
             border: 1px solid #BCAE79;
             border-radius: 8px;
-            padding: 12px;
+            /*padding: 12px;*/
             max-width: 450px;
             min-width: 450px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -368,26 +368,50 @@
         }
 
         .tooltip-title {
-            /*font-weight: bold;*/
             color: #BCAE79;
+            padding: 12px;
             margin-bottom: 100px;
             font-size: 26px;
         }
 
         .tooltip-content {
             margin-bottom: 8px;
+            padding: 12px;
             color: #f5ebc8;
-            font-size:  18px;
+            font-size:  16px;
             background-color: #3a3a3a;
         }
 
+        .item-properties {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 12px;
+        }
+
         .tooltip-footer {
+            display: grid;
+            justify-items: start;
+            align-items: start;
+            padding: 12px;
             font-size: 12px;
             font-style: italic;
             color: #aaa;
             border-top: 1px solid #444;
             padding-top: 8px;
             margin-top: 8px;
+            gap: 5px;
+            text-align: left;
+        }
+        .tooltip-footer > img {
+            grid-column-start: 1;
+            grid-row-start: 1;
+        }
+        .tooltip-footer > p {
+            grid-column-start: 2;
+            grid-row-start: 1;
+            text-align: left;
         }
 
         .tooltip-link {
@@ -480,6 +504,17 @@
             pointer-events: none;
             background-color: transparent;
         }
+        .boost {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .spell {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+        }
 
         .spell-icon {
             width: 32px;
@@ -488,6 +523,15 @@
         .boost-name {
             font-weight: bold;
             color: #f5ebb8;
+        }
+        .weapon-abilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .weapon-ability-icon {
+            width: 32px;
+            height: 32px;
         }
 
 
@@ -571,7 +615,10 @@
             <div class="ac-value-comment"></div>
         </div>
         <div class="tooltip-content"></div>
-        <div class="tooltip-footer"></div>
+        <div class="tooltip-footer">
+            
+        </div>
+        <div class="item-properties"></div>
     </div>
 
     <script>
@@ -1106,13 +1153,20 @@
                 }
                 content = '';
                 content += `${equipment.boostDescription}`;
-                content = content.replaceAll('__skill_icon_path__', '/static/img/icons/skills/');
-                content = content.replaceAll('__skill_icon_suffix__', '.png');
-
+ 
                  // Set content
                 $tooltipTitle.html(equipment.name || '');
                 $tooltipContent.html(content);
-                $tooltipFooter.html(equipment.description || '');
+                $tooltipFooter.empty();
+                if (equipment.description) {  
+                    $tooltipFooter.show();
+                    $tooltipFooter.append($('<img>', { src: '/static/img/icons/tooltips/scrollBox_icon.png', width: '16', height: '16' }));
+                    $footContent = $('<p>');
+                    $footContent.html(equipment.description || '');
+                    $tooltipFooter.append($footContent);
+                } else {
+                    $tooltipFooter.hide();
+                }
 
                 // Set tooltip title color programmatically
                 if (equipment.rarity === 'Legendary') {
@@ -1130,11 +1184,45 @@
                 } else if (equipment.rarity === 'Common') {
                     tooltip.css('background-image', 'linear-gradient(to bottom, #1B1A1999, #1B1A1999, #1B1A1999, #40295199')
                     $tooltipTitle.attr('class', 'rarity-common tooltip-title');
-                } // You can change this color as needed
-
+                } 
+                
+                $itemProperties = tooltip.find('.item-properties');
+                $itemProperties.empty();
+                $itemProperties.show();
+                if (equipment.type === 'Weapon') {
+                    if (equipment.weaponType) {
+                        addItemProperty($itemProperties, equipment.weaponType, '/static/img/icons/tooltips/ico_roll_attack.png');
+                    }
+                    for (const property of equipment.weaponProperties) {
+                        console.log(property);
+                        if (property === 'Twohanded') {
+                            addItemProperty($itemProperties, 'Two Handed', '/static/img/icons/tooltips/ico_handedness.png');
+                        } else if (property === 'Light') {
+                            addItemProperty($itemProperties, property, '/static/img/icons/tooltips/ico_lightWeight.png');
+                        } else if (property === 'Dippable') {
+                            addItemProperty($itemProperties, property, '/static/img/icons/tooltips/ico_dippable.png');
+                        } else if (property === 'Finesse') {
+                            addItemProperty($itemProperties, property, '/static/img/icons/tooltips/ico_finesse.png');
+                        } else if (property === 'Throwable') {
+                            addItemProperty($itemProperties, property, '/static/img/icons/tooltips/ico_throwable.png');
+                        } else if (property === 'Versatile') {
+                            addItemProperty($itemProperties, property, '/static/img/icons/tooltips/ico_handedness.png');
+                        }
+                    }
+                } else if (equipment.type === 'Armor') {
+                    if (equipment.armorType) {
+                        addItemProperty($itemProperties, equipment.armorType, '/static/img/icons/tooltips/ico_AC.png');
+                    }
+                } else {
+                    $itemProperties.hide();
+                }
 
             }
 
+            function addItemProperty(itemProperties, property, icon) {
+                itemProperties.append($('<img>', { src: icon, width: '16', height: '16' }));
+                itemProperties.append($('<span>', { text: property }));
+            }
             // Function to show tooltip
             function showTooltip(event, equipment) {
                 showEquipmentPanel($tooltip, equipment);
@@ -1146,8 +1234,8 @@
                 // Position tooltip near mouse
                 const mouseX = event.pageX;
                 const mouseY = event.pageY;
-                const tooltipWidth = 250; // Approximate width
-                const tooltipHeight = 150; // Approximate height
+                const tooltipWidth = $tooltip.width(); // Approximate width
+                const tooltipHeight = $tooltip.height(); // Approximate height
                 const windowWidth = $(window).width();
                 const windowHeight = $(window).height();
 
@@ -1159,7 +1247,7 @@
                     left = mouseX - tooltipWidth - 15;
                 }
                 if (top + tooltipHeight > windowHeight) {
-                    top = mouseY - tooltipHeight + 10;
+                    top = windowHeight - tooltipHeight - 15;
                 }
 
                 $tooltip.css({

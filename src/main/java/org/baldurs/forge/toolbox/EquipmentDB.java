@@ -3,8 +3,10 @@ package org.baldurs.forge.toolbox;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.baldurs.forge.agents.ForgeAgent;
 import org.baldurs.forge.agents.MetadataAgent;
@@ -129,7 +131,38 @@ public class EquipmentDB {
         String boost = boostWriter.toString();
         //Log.infof("Boosts for %s: %s", id, boost);
         String icon = rootTemplate.resolveIcon();
-        Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost, icon, armorClass, rootTemplate, item);
+        String weaponType = null;
+        if (type == EquipmentType.Weapon) {
+            String proficiencies = item.getField("Proficiency Group");
+            if (proficiencies != null) {
+                String[] profs = proficiencies.split(";");
+                if (profs.length > 0) {
+                    weaponType = profs[0].substring(0, profs[0].length() - 1);
+                }
+            }
+        }
+        String armorType = null;
+        if (type == EquipmentType.Armor) {
+            armorType = item.getField("ArmorType");
+            if (armorType != null) {
+                if (armorType.equals("None")) {
+                    armorType = null;
+                } else {
+                    armorType = addSpacesBetweenCapitals(armorType);
+                }
+            }
+        }
+        Set<String> weaponProperties = new HashSet<>();
+        if (type == EquipmentType.Weapon) {
+            String properties = item.getField("Weapon Properties");
+            if (properties != null) {
+                String[] props = properties.split(";");
+                for (String prop : props) {
+                    weaponProperties.add(prop);
+                }
+            }
+        }
+        Equipment equipment = new Equipment(id, type, slot, rarity, name, description, boost, icon, weaponType, armorType, armorClass, weaponProperties, rootTemplate, item);
         equipmentDB.put(id, equipment);
     }
 
@@ -152,12 +185,31 @@ public class EquipmentDB {
             StatsArchive.Stat stat = libraryService.library().statsCollector.getByName(item.id());
             boostService.stat(stat, boostWriter);
             String boost = boostWriter.toString();
-            Metadata metadata = Metadata.from(Map.of("id", item.id(), "type", item.type().name(), "slot",
-                    item.slot().name(), "rarity", item.rarity().name()));
+            Metadata metadata = Metadata.from(Map.of(
+                    "id", item.id(), 
+                    "type", item.type().name(), 
+                    "slot", item.slot().name(), 
+                    "rarity", item.rarity().name()));
+            if (item.weaponType() != null) {
+                metadata.put("weaponType", item.weaponType());
+            }
+            if (item.armorType() != null) {
+                metadata.put("armorType", item.armorType());
+            }
             String content = "Name: " + item.name() + "\n" +
                     "Type: " + item.type() + "\n" +
                     "Slot: " + item.slot() + "\n" +
-                    "Rarity: " + item.rarity() + "\n" +
+                    "Rarity: " + item.rarity() + "\n";
+            if (item.weaponType() != null) {
+                content += "Weapon Type: " + item.weaponType() + "\n";
+            }
+            if (item.armorType() != null) {
+                content += "Armor Type: " + item.armorType() + "\n";
+            }
+            if (item.weaponProperties() != null) {
+                content += "Weapon Properties: " + item.weaponProperties() + "\n";
+            }
+            content +=
                     "Boosts: " + boost;
             //Log.info("\nid: " + item.id() + "\n" + content);
             Document document = Document.from(content, metadata);
@@ -234,6 +286,89 @@ public class EquipmentDB {
             }
         }
         return filter.filter();
+    }
+
+    /**
+     * Utility method to find capital letters in a string
+     * @param str the input string
+     * @return a list of capital letters found in the string
+     */
+    public static List<Character> findCapitalLetters(String str) {
+        List<Character> capitals = new ArrayList<>();
+        if (str == null) {
+            return capitals;
+        }
+        
+        for (char c : str.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                capitals.add(c);
+            }
+        }
+        return capitals;
+    }
+
+    /**
+     * Alternative method to find capital letters using regex
+     * @param str the input string
+     * @return a list of capital letters found in the string
+     */
+    public static List<Character> findCapitalLettersRegex(String str) {
+        List<Character> capitals = new ArrayList<>();
+        if (str == null) {
+            return capitals;
+        }
+        
+        // Using regex to find capital letters
+        String capitalPattern = "[A-Z]";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(capitalPattern);
+        java.util.regex.Matcher matcher = pattern.matcher(str);
+        
+        while (matcher.find()) {
+            capitals.add(matcher.group().charAt(0));
+        }
+        return capitals;
+    }
+
+    /**
+     * Method to get positions of capital letters in a string
+     * @param str the input string
+     * @return a map of character to list of positions where it appears
+     */
+    public static Map<Character, List<Integer>> findCapitalLetterPositions(String str) {
+        Map<Character, List<Integer>> positions = new HashMap<>();
+        if (str == null) {
+            return positions;
+        }
+        
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isUpperCase(c)) {
+                positions.computeIfAbsent(c, k -> new ArrayList<>()).add(i);
+            }
+        }
+        return positions;
+    }
+
+    /**
+     * Adds spaces between capital letters in a string
+     * @param str the input string
+     * @return the string with spaces added between capital letters
+     */
+    public static String addSpacesBetweenCapitals(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isUpperCase(c) && i > 0) {
+                // Add space before capital letter (except at the beginning)
+                result.append(' ');
+            }
+            result.append(c);
+        }
+        return result.toString();
     }
 
 }

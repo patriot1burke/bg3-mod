@@ -2,7 +2,9 @@ package org.baldurs.forge.toolbox;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.baldurs.forge.scanner.StatsArchive;
@@ -20,22 +22,44 @@ public class BoostService {
     @Inject
     MacroService macroService;
 
+    static String spellIconPath = "/static/img/icons/skills/";
+    static String spellIconSuffix = ".png";
+
+    static String spellIconPath(String icon) {
+        return spellIconPath + icon + spellIconSuffix;
+    }
+
     public interface BoostWriter {
         void writeGrouping(String name);
+
         void write(String description);
+
         void write(String icon, String displayName, String description);
-        void writeSpell(StatsArchive.Stat spell);
+
+        void unlockSpell(StatsArchive.Stat spell);
+
         void writeUnknown(String macro);
     }
+
     public BoostWriter html() {
         return new HtmlBoostWriter();
     }
+
     public BoostWriter text() {
         return new TextBoostWriter();
     }
 
+    private boolean isWeaponAbility(StatsArchive.Stat stat) {
+        String weaponTypes = stat.getField("WeaponTypes");
+        if (weaponTypes == null) {
+            return false;
+        }
+        return weaponTypes.equals("Melee") || weaponTypes.equals("Ammunition");
+    }
+
     private class HtmlBoostWriter implements BoostWriter {
         private final StringBuilder sb = new StringBuilder();
+        private List<StatsArchive.Stat> weaponAbilities = new ArrayList<>();
 
         @Override
         public void writeGrouping(String name) {
@@ -44,12 +68,12 @@ public class BoostService {
 
         @Override
         public void write(String description) {
-            sb.append("<p>").append(description).append("</p>");
+            sb.append("<p class='boost'>").append(description).append("</p>");
         }
 
         @Override
         public void write(String icon, String displayName, String description) {
-            sb.append("<p>");
+            sb.append("<p class='boost'>");
             if (icon != null) {
                 writeSpellImage(icon, displayName == null ? "" : displayName);
             }
@@ -63,23 +87,43 @@ public class BoostService {
             if (displayName == null) {
                 displayName = "Spell";
             }
-            sb.append("<img class='spell-icon' src='__skill_icon_path__").append(icon).append("__skill_icon_suffix__' alt='").append(displayName).append("'>");
+            sb.append("<img class='spell-icon' src='").append(spellIconPath(icon)).append("' alt='").append(displayName)
+                    .append("'>");
         }
 
+    
+
         @Override
-        public void writeSpell(StatsArchive.Stat spell) {
+        public void unlockSpell(StatsArchive.Stat spell) {
+            if (isWeaponAbility(spell)) {
+                weaponAbilities.add(spell);
+                return;
+            }
+            sb.append("<div class='spell'>");
             String icon = spell.getField("Icon");
             String displayName = statDisplayName(spell);
             writeSpellImage(icon, displayName);
             sb.append("<div class='spell-name'>").append(displayName).append("</div>");
+            sb.append("</div>");
         }
 
         @Override
         public void writeUnknown(String macro) {
-            sb.append("<p><i>Unknown macro: ").append(macro).append("</i></p>");
+            sb.append("<p class='boost'><i>Unknown macro: ").append(macro).append("</i></p>");
         }
 
         public String toString() {
+            if (weaponAbilities.size() > 0) {
+                sb.append("<p>Proficiency with this weapon unlocks:</p>");
+                sb.append("<div class='weapon-abilities'>");
+                for (StatsArchive.Stat spell : weaponAbilities) {
+                    String icon = spell.getField("Icon");
+                    String displayName = statDisplayName(spell);
+                    sb.append("<img class='weapon-ability-icon' src='").append(spellIconPath(icon)).append("' title='")
+                            .append(displayName).append("'>");
+                }
+                sb.append("</div>");
+            }
             return sb.toString();
         }
     }
@@ -87,6 +131,7 @@ public class BoostService {
     private class TextBoostWriter implements BoostWriter {
         private final StringWriter sw = new StringWriter();
         private final PrintWriter pw = new PrintWriter(sw);
+        private List<StatsArchive.Stat> weaponAbilities = new ArrayList<>();
 
         @Override
         public void writeGrouping(String grouping) {
@@ -104,7 +149,11 @@ public class BoostService {
         }
 
         @Override
-        public void writeSpell(StatsArchive.Stat spell) {
+        public void unlockSpell(StatsArchive.Stat spell) {
+            if (isWeaponAbility(spell)) {
+                weaponAbilities.add(spell);
+                return;
+            }
             String displayName = statDisplayName(spell);
             pw.printf("Spell: %s\n", displayName);
         }
@@ -115,6 +164,17 @@ public class BoostService {
         }
 
         public String toString() {
+            if (weaponAbilities.size() > 0) {
+                pw.println("Proficiency with this weapon unlocks:");
+                String prepend = "";
+                for (StatsArchive.Stat spell : weaponAbilities) {
+                    String displayName = statDisplayName(spell);
+                    pw.print(prepend);
+                    pw.print(displayName);
+                    prepend = ", ";
+                }
+                pw.println();
+            }
             pw.flush();
             return sw.toString();
         }
